@@ -1,0 +1,37 @@
+## --- Pastas de Compilação ---
+bin/
+obj/
+
+## --- Pacotes NuGet ---
+# Não rastreamos os pacotes baixados, pois eles são restaurados via arquivo .csproj
+node_modules/
+packages/
+*.nupkg
+
+## --- Configurações de IDE (Visual Studio / VS Code) ---
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.sln.docstates
+
+## --- Publicação e Artefatos ---
+publish/
+dist/
+out/
+
+## --- Logs e Arquivos Temporários ---
+*.log
+*.tmp
+.DS_Store (para Mac)
+
+## --- Segurança e Local (IMPORTANTE) ---
+# Evite subir segredos e configurações específicas da sua máquina
+appsettings.Development.json
+appsettings.Local.json
+.env
+usersecrets.json
+
+## --- Testes (Code Coverage) ---
+TestResults/
+*.externalsyc

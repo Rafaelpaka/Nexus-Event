@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "9XffwpbUBQQ=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Pichau\\NexusEvent\\PastaNexusEvent\\Nexus-Event\\src\\backend\\backend.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Pichau\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.6\\microsoft.aspnetcore.openapi.9.0.6.nupkg.sha512",
+    "C:\\Users\\Pichau\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
