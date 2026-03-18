@@ -1,4 +1,4 @@
-namespace backend.Entities.IngressoEntity;
+namespace backend.Entities;
 
 public class IngressoEntity
 {
