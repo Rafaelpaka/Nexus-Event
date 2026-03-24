@@ -1,6 +1,7 @@
 namespace backend.DTOs.Usuario;
 
 public class CriarUsuarioRequest
+    // focado no POST
 {
     public string Nome { get; set; } = string.Empty;
     public string Login { get; set; } = string.Empty;
