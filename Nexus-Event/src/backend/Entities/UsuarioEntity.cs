@@ -2,15 +2,20 @@ namespace backend.Entities;
 
 public class UsuarioEntity
 {
-
-public UsuarioEntity(string nome, string login, string senha, string cpf, string email, string? telefone = null, string? endereco = null)
+    public UsuarioEntity(
+        string nome,
+        string login,
+        string senha,
+        string cpf,
+        string email,
+        string? telefone = null,
+        string? endereco = null)
     {
-        // Validação de nulos ou vazios para campos obrigatórios
-        ArgumentException.ThrowIfNullOrEmpty(nome);
-        ArgumentException.ThrowIfNullOrEmpty(login);
-        ArgumentException.ThrowIfNullOrEmpty(senha);
-        ArgumentException.ThrowIfNullOrEmpty(cpf);
-        ArgumentException.ThrowIfNullOrEmpty(email);
+        ArgumentException.ThrowIfNullOrWhiteSpace(nome);
+        ArgumentException.ThrowIfNullOrWhiteSpace(login);
+        ArgumentException.ThrowIfNullOrWhiteSpace(senha);
+        ArgumentException.ThrowIfNullOrWhiteSpace(cpf);
+        ArgumentException.ThrowIfNullOrWhiteSpace(email);
 
         Nome = nome;
         Login = login;
@@ -21,13 +26,12 @@ public UsuarioEntity(string nome, string login, string senha, string cpf, string
         Endereco = endereco;
     }
 
-    public int idUsuario { get; private set; }
-    public string name {get; set; } = string.Empty;
-    public string login {get; private set; } = string.Empty;
-    public string senha {get; private set; } = string.Empty;
-    public string cpf {get; private set; } = string.Empty;
-    public string email {get; set; } = string.Empty;
-    public string? telefone {get; set; } = string.Empty;
-    public string? endereco {get; set; } = string.Empty;
-
+    public int IdUsuario { get; private set; }
+    public string Nome { get; private set; }
+    public string Login { get; private set; }
+    public string Senha { get; private set; }
+    public string Cpf { get; private set; }
+    public string Email { get; private set; }
+    public string? Telefone { get; private set; }
+    public string? Endereco { get; private set; }
 }
