@@ -1,4 +1,4 @@
-namespace Backend.Entities;
+namespace backend.Entities;
 
 public class ReservaEntity
 {

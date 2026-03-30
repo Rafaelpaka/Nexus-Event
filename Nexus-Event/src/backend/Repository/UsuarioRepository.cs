@@ -1,9 +1,10 @@
 using Dapper;
-using system.Data;
+using System.Data;
 using Microsoft.Data.SqlClient;
-using Backend.Entities;
+using backend.Entities;
+using backend.Entities;
 
-namespace Backend.Repositories;
+namespace backend.Repositories;
 
 public class UsuarioRepository
 {
@@ -15,21 +16,21 @@ public class UsuarioRepository
 
 	private IDbConnection CriarConexao() => new SqlConnection(_connecttionString);
 
-	public async Task<Usuario?> BuscarPorCpf(string cpf) {
+	public async Task<UsuarioEntity?> BuscarPorCpf(string cpf) {
 
 		using var db = CriarConexao();
-		return await db.QueryFirstOrDefaultAsync<Usuario>(
+		return await db.QueryFirstOrDefaultAsync<UsuarioEntity>(
 			"SELECT * FROM Usuarios Where Cpf = @Cpf",
 			new { Cpf = cpf }
 		);
 
 	}
 
-	public async Task<int> Cadastrar(Usuario usuario) {
+	public async Task<int> Cadastrar(UsuarioEntity usuario) {
 
 		using var db = CriarConexao();
 		return await db.ExecuteAsync(
-			@"INSERT INTO Usuarios (Cpf, Nome, Email) VALUE (@Cpf, @Nome, @Email)", new { Usuario.Cpf, Usuario.Nome, Usuario.Email }
+			@"INSERT INTO Usuarios (Cpf, Nome, Email) VALUE (@Cpf, @Nome, @Email)", new { usuario.Cpf, usuario.Nome, usuario.Email }
 			);
 	}
 
