@@ -1,9 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
-using backend.DTOs.Usuario;
 using backend.Entities;
 using backend.Repositories;
-using backend.Validators;
 
 namespace backend.Services;
 
@@ -16,46 +14,26 @@ public class UsuarioService
         _usuarioRepository = usuarioRepository;
     }
 
-    public async Task<UsuarioResponse> CriarUsuarioAsync(CriarUsuarioRequest request)
+    public async Task<UsuarioEntity> CriarUsuarioAsync(UsuarioEntity request)
     {
-        if (request is null)
-            throw new ArgumentNullException(nameof(request));
+        if (string.IsNullOrWhiteSpace(request.Nome))
+            throw new ArgumentException("Nome é obrigatório.");
 
-        UsuarioValidator.ValidarCamposObrigatorios(request);
-        UsuarioValidator.ValidarEmail(request.Email);
-        UsuarioValidator.ValidarSenhaForte(request.Senha);
+        if (string.IsNullOrWhiteSpace(request.Cpf))
+            throw new ArgumentException("CPF é obrigatório.");
 
-        var usuarioExistente = await _usuarioRepository.BuscarPorEmailAsync(request.Email);
+        if (string.IsNullOrWhiteSpace(request.Email))
+            throw new ArgumentException("Email é obrigatório.");
 
-        if (usuarioExistente is not null)
-            throw new InvalidOperationException("Já existe um usuário cadastrado com este e-mail.");
+        var existente = await _usuarioRepository.BuscarPorEmailAsync(request.Email);
+        if (existente is not null)
+            throw new InvalidOperationException("Já existe um usuário com este e-mail.");
 
-        var senhaHash = GerarHash(request.Senha);
+        if (!string.IsNullOrWhiteSpace(request.Senha))
+            request.Senha = GerarHash(request.Senha);
 
-        var usuario = new UsuarioEntity(
-            nome: request.Nome,
-            login: request.Login,
-            senha: senhaHash,
-            cpf: request.Cpf,
-            email: request.Email,
-            telefone: request.Telefone,
-            endereco: request.Endereco
-        );
-
-        var linhasAfetadas = await _usuarioRepository.CadastrarAsync(usuario);
-
-        if (linhasAfetadas <= 0)
-            throw new Exception("Não foi possível cadastrar o usuário.");
-
-        return new UsuarioResponse
-        {
-            Nome = usuario.Nome,
-            Login = usuario.Login,
-            Cpf = usuario.Cpf,
-            Email = usuario.Email,
-            Telefone = usuario.Telefone,
-            Endereco = usuario.Endereco
-        };
+        await _usuarioRepository.CadastrarAsync(request);
+        return request;
     }
 
     private static string GerarHash(string senha)
@@ -63,7 +41,6 @@ public class UsuarioService
         using var sha256 = SHA256.Create();
         var bytes = Encoding.UTF8.GetBytes(senha);
         var hash = sha256.ComputeHash(bytes);
-
         return Convert.ToBase64String(hash);
     }
 }
