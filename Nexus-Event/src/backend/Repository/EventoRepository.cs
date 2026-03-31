@@ -2,7 +2,6 @@ using Dapper;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using backend.Entities;
-using backend.Entities;
 
 namespace backend.Repositories;
 
@@ -33,13 +32,20 @@ public class EventoRepository
             new { Id = id }
         );
     }
+
     public async Task<int> Cadastrar(EventoEntity evento)
     {
         using var db = CriarConexao();
         return await db.ExecuteAsync(
-            @"INSERT INTO Eventos (Titulo, Descricao, Data, Horario, CapacidadeMaxima, Valor, Setor, DuracaoAproximada, LimitePorPessoa)
-              VALUES (@Titulo, @Descricao, @Data, @Horario, @CapacidadeMaxima, @Valor, @Setor, @DuracaoAproximada, @LimitePorPessoa)",
-            new { evento.Titulo, evento.Descricao, evento.Data, evento.Horario, evento.CapacidadeMaxima, evento.Valor, evento.Setor, evento.DuracaoAproximada, evento.LimitePorPessoa }
+            @"INSERT INTO Eventos (Nome, CapacidadeTotal, DataEvento, PrecoPadrao)
+              VALUES (@Nome, @CapacidadeTotal, @DataEvento, @PrecoPadrao)",
+            new
+            {
+                evento.Nome,
+                evento.CapacidadeTotal,
+                evento.DataEvento,
+                evento.PrecoPadrao
+            }
         );
     }
 }
