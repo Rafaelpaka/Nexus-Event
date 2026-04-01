@@ -1,4 +1,4 @@
-﻿using backend.DTOs.Cupom;
+using backend.DTOs.Cupom;
 using backend.DTOs.Evento;
 using backend.DTOs.Reserva;
 using backend.DTOs.Usuario;
@@ -9,7 +9,7 @@ using backend.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Swagger
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -33,11 +33,21 @@ builder.Services.AddScoped<EventoService>();
 builder.Services.AddScoped<CupomService>();
 builder.Services.AddScoped<ReservaService>();
 
+// ✅ Seed Service
+builder.Services.AddScoped<SeedService>();
+
 var app = builder.Build();
 
-// ✅ Swagger UI
+// Swagger UI
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// ✅ Executa o Seed ao iniciar
+using (var scope = app.Services.CreateScope())
+{
+    var seed = scope.ServiceProvider.GetRequiredService<SeedService>();
+    await seed.CriarAdminSeNaoExistir();
+}
 
 // ==========================================
 // POST /api/usuarios
@@ -54,11 +64,11 @@ app.MapPost("/api/usuarios", async (
 
         var entity = new UsuarioEntity
         {
-            Cpf = request.Cpf,
-            Nome = request.Nome,
-            Email = request.Email,
-            Login = request.Login,
-            Senha = request.Senha,
+            Cpf      = request.Cpf,
+            Nome     = request.Nome,
+            Email    = request.Email,
+            Login    = request.Login,
+            Senha    = request.Senha,
             Telefone = request.Telefone,
             Endereco = request.Endereco
         };
@@ -87,10 +97,10 @@ app.MapPost("/api/eventos", async (
     {
         var entity = new EventoEntity
         {
-            Nome = request.Nome,
+            Nome            = request.Nome,
             CapacidadeTotal = request.CapacidadeTotal,
-            DataEvento = request.DataEvento,
-            PrecoPadrao = request.PrecoPadrao
+            DataEvento      = request.DataEvento,
+            PrecoPadrao     = request.PrecoPadrao
         };
 
         var (sucesso, mensagem) = await service.Cadastrar(entity);
@@ -126,9 +136,9 @@ app.MapPost("/api/cupons", async (
     {
         var entity = new CupomEntity
         {
-            Codigo = request.Codigo,
+            Codigo              = request.Codigo,
             PorcentagemDesconto = request.PorcentagemDesconto,
-            ValorMinimoRegra = request.ValorMinimoRegra
+            ValorMinimoRegra    = request.ValorMinimoRegra
         };
 
         var (sucesso, mensagem) = await service.Cadastrar(entity);
