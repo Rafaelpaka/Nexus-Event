@@ -1,0 +1,100 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@implements IDisposable
+
+<PageTitle>Home</PageTitle>
+
+<div class="home-page">
+
+    <section class="banner-section">
+        <div class="banner-wrapper">
+            <img src="@banners[currentBanner]" alt="Banner de evento" class="banner-img" />
+
+            <div class="banner-overlay">
+                <div class="banner-content">
+                    <span class="badge-highlight">Ingressos disponíveis agora</span>
+                    <h1>Nexus Event</h1>
+                    <p>
+                        Descubra shows, festivais, congressos e experiências únicas.
+                        Compre seus ingressos com praticidade e segurança.
+                    </p>
+
+                    <div class="banner-actions">
+                        <button class="btn btn-primary-custom">Ver Eventos</button>
+                    </div>
+                </div>
+
+                <div class="banner-controls">
+                    <button type="button" class="control-btn" @onclick="BannerAnterior">❮</button>
+                    <button type="button" class="control-btn" @onclick="ProximoBanner">❯</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="highlight-section">
+        <div class="highlight-box">
+            <h2>Viva grandes experiências</h2>
+            <p>
+                Uma plataforma moderna para encontrar eventos, garantir sua vaga
+                e acompanhar as melhores oportunidades.
+            </p>
+        </div>
+    </section>
+
+</div>
+
+@code {
+    private int currentBanner = 0;
+
+    private readonly List<string> banners = new()
+    {
+        "images/banner1.jpg",
+        "images/banner2.jpg",
+        "images/banner3.jpg"
+    };
+
+    private PeriodicTimer? _timer;
+    private CancellationTokenSource? _cancellationTokenSource;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _cancellationTokenSource = new CancellationTokenSource();
+        _timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+
+        try
+        {
+            while (_timer is not null &&
+                   await _timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
+            {
+                currentBanner = (currentBanner + 1) % banners.Count;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void ProximoBanner()
+    {
+        currentBanner = (currentBanner + 1) % banners.Count;
+    }
+
+    private void BannerAnterior()
+    {
+        currentBanner = (currentBanner - 1 + banners.Count) % banners.Count;
+    }
+
+    public void Dispose()
+    {
+        _cancellationTokenSource?.Cancel();
+        _timer?.Dispose();
+        _cancellationTokenSource?.Dispose();
+    }
+}
