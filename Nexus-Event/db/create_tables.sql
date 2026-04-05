@@ -9,6 +9,7 @@ CREATE TABLE Usuarios (
     Cpf   VARCHAR(14)  NOT NULL,
     Nome  VARCHAR(100) NOT NULL,
     Email VARCHAR(100) NOT NULL,
+    SenhaHash VARCHAR(256) NULL,
     CONSTRAINT PK_Usuarios PRIMARY KEY (Cpf)
 );
 GO

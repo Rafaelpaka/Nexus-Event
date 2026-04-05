@@ -1,0 +1,35 @@
+@page "/login"
+@inject NavigationManager Navigation
+
+<PageTitle>Login</PageTitle>
+
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Entrar</h1>
+        <p class="auth-subtitle">Acesse sua conta para acompanhar eventos e ingressos.</p>
+
+        <div class="form-group">
+            <label>E-mail</label>
+            <input class="form-control-custom" type="email" placeholder="Digite seu e-mail" />
+        </div>
+
+        <div class="form-group">
+            <label>Senha</label>
+            <input class="form-control-custom" type="password" placeholder="Digite sua senha" />
+        </div>
+
+        <button type="button" class="auth-main-button">Entrar</button>
+
+        <div class="auth-footer">
+            <span>Ainda não tem conta?</span>
+           <NavLink class="link-button" href="/register">Cadastre-se</NavLink>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void IrParaRegistro()
+    {
+        Navigation.NavigateTo("/register");
+    }
+}
