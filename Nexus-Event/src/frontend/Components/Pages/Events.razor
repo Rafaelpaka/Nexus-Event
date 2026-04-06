@@ -1,0 +1,103 @@
+@page "/eventos"
+@rendermode InteractiveServer
+
+<div class="events-page-container">
+    <section class="events-header-nexus">
+        <h1>Explorar Eventos</h1>
+        <p>Encontre a sua próxima experiência inesquecível na Nexus.</p>
+    </section>
+
+    <div class="events-grid-nexus">
+        @if (eventos == null)
+        {
+            <div class="loading-state">
+                <p>Carregando eventos...</p>
+            </div>
+        }
+        else if (!eventos.Any())
+        {
+            <div class="empty-state">
+                <p>Não há eventos disponíveis de momento.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in eventos)
+            {
+                <div class="event-card-nexus">
+                    <div class="event-image-wrapper">
+                        <img src="@item.ImagemUrl" class="event-thumb" alt="@item.Titulo" />
+                        <span class="event-category-badge">@item.Categoria</span>
+                    </div>
+                    
+                    <div class="event-body-nexus">
+                        <p class="event-date">@item.Data.ToString("dd/MM/yyyy")</p>
+                        <h3>@item.Titulo</h3>
+                        <p class="event-location">@item.Local</p>
+                        
+                        <div class="event-footer-nexus">
+                            <span class="event-price">@item.Preco.ToString("C")</span>
+                            <button class="btn-nexus-card">Ver Ingressos</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private List<Evento>? eventos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulação de dados do banco para teste 
+        eventos = new List<Evento>
+        {
+            new Evento { 
+                Titulo = "Rock in Rio 2026", 
+                Local = "Cidade do Rock, RJ", 
+                Data = new DateTime(2026, 05, 19), 
+                Preco = 590.00m, 
+                Categoria = "Música",
+                ImagemUrl = "images/banner1.jpg" 
+            },
+            new Evento { 
+                Titulo = "The Town 2026", 
+                Local = "Cidade da Música - SP", 
+                Data = new DateTime(2026, 10, 20), 
+                Preco = 750.00m, 
+                Categoria = "Música",
+                ImagemUrl = "images/banner2.jpg" 
+            },
+            new Evento { 
+                Titulo = "BTS World Tour", 
+                Local = "Estadio MorumBIS", 
+                Data = new DateTime(2027, 07, 10), 
+                Preco = 960.00m, 
+                Categoria = "Música",
+                ImagemUrl = "images/banner4.jpg" 
+            },
+            new Evento { 
+                Titulo = "The Weeknd: After Hours Til Down", 
+                Local = "Lounge Nexus", 
+                Data = new DateTime(2026, 05, 22), 
+                Preco = 489.00m, 
+                Categoria = "Lazer",
+                ImagemUrl = "images/banner5.jpg" 
+            }
+        };
+
+        // eventos = await EventoService.GetEventosAsync();
+    }
+
+    public class Evento
+    {
+        public string Titulo { get; set; } = "";
+        public string Local { get; set; } = "";
+        public DateTime Data { get; set; }
+        public decimal Preco { get; set; }
+        public string Categoria { get; set; } = "";
+        public string ImagemUrl { get; set; } = "";
+    }
+}
