@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\carol\\Nexus-Event\\Nexus-Event\\src\\backend\\backend.csproj": {}
+    "C:\\Users\\User\\Downloads\\Nexus-Event-main (2)\\Nexus-Event-main\\Nexus-Event\\src\\backend\\backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\carol\\Nexus-Event\\Nexus-Event\\src\\backend\\backend.csproj": {
+    "C:\\Users\\User\\Downloads\\Nexus-Event-main (2)\\Nexus-Event-main\\Nexus-Event\\src\\backend\\backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\carol\\Nexus-Event\\Nexus-Event\\src\\backend\\backend.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Downloads\\Nexus-Event-main (2)\\Nexus-Event-main\\Nexus-Event\\src\\backend\\backend.csproj",
         "projectName": "backend",
-        "projectPath": "C:\\Users\\carol\\Nexus-Event\\Nexus-Event\\src\\backend\\backend.csproj",
-        "packagesPath": "C:\\Users\\carol\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\carol\\Nexus-Event\\Nexus-Event\\src\\backend\\obj\\",
+        "projectPath": "C:\\Users\\User\\Downloads\\Nexus-Event-main (2)\\Nexus-Event-main\\Nexus-Event\\src\\backend\\backend.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\Downloads\\Nexus-Event-main (2)\\Nexus-Event-main\\Nexus-Event\\src\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\carol\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -44,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -78,6 +78,24 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[9.0.14, 9.0.14]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[9.0.14, 9.0.14]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[9.0.14, 9.0.14]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[9.0.14, 9.0.14]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -86,7 +104,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

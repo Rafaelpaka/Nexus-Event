@@ -38,9 +38,9 @@ public class UsuarioRepository
     {
         using var db = CriarConexao();
         return await db.ExecuteAsync(
-            @"INSERT INTO Usuarios (Cpf, Nome, Email, Senha)
-              VALUES (@Cpf, @Nome, @Email, @Senha)",
-            new { usuario.Cpf, usuario.Nome, usuario.Email, usuario.Senha }
+            @"INSERT INTO Usuarios (Cpf, Nome, Email, SenhaHash)
+              VALUES (@Cpf, @Nome, @Email, @SenhaHash)",
+            new { usuario.Cpf, usuario.Nome, usuario.Email, usuario.SenhaHash }
         );
     }
 }

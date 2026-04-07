@@ -29,17 +29,17 @@ public class UsuarioService
         if (existente is not null)
             throw new InvalidOperationException("Já existe um usuário com este e-mail.");
 
-        if (!string.IsNullOrWhiteSpace(request.Senha))
-            request.Senha = GerarHash(request.Senha);
+        if (!string.IsNullOrWhiteSpace(request.SenhaHash))
+            request.SenhaHash = GerarHash(request.SenhaHash);
 
         await _usuarioRepository.CadastrarAsync(request);
         return request;
     }
 
-    private static string GerarHash(string senha)
+    private static string GerarHash(string Senha)
     {
         using var sha256 = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes(senha);
+        var bytes = Encoding.UTF8.GetBytes(Senha);
         var hash = sha256.ComputeHash(bytes);
         return Convert.ToBase64String(hash);
     }

@@ -13,7 +13,7 @@ public static class UsuarioValidator
         if (string.IsNullOrWhiteSpace(request.Login))
             throw new ArgumentException("O login é obrigatório.");
 
-        if (string.IsNullOrWhiteSpace(request.Senha))
+        if (string.IsNullOrWhiteSpace(request.SenhaHash))
             throw new ArgumentException("A senha é obrigatória.");
 
         if (string.IsNullOrWhiteSpace(request.Cpf))

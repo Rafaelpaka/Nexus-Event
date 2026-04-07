@@ -60,14 +60,14 @@ app.MapPost("/api/usuarios", async (
     {
         UsuarioValidator.ValidarCamposObrigatorios(request);
         UsuarioValidator.ValidarEmail(request.Email);
-        UsuarioValidator.ValidarSenhaForte(request.Senha);
+        UsuarioValidator.ValidarSenhaForte(request.SenhaHash);
 
         var entity = new UsuarioEntity
         {
             Cpf      = request.Cpf,
             Nome     = request.Nome,
             Email    = request.Email,
-            Senha    = request.Senha,
+            SenhaHash = request.SenhaHash,
             Telefone = request.Telefone,
             Endereco = request.Endereco
         };

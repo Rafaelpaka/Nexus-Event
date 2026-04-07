@@ -33,7 +33,7 @@ public class SeedService
             Cpf       = cpfAdmin,
             Nome      = "Administrador",
             Email     = "admin@nexusevent.com",
-            Senha = GerarHash("Admin@123")
+            SenhaHash = GerarHash("Admin@123")
         };
 
         await _usuarioRepository.CadastrarAsync(admin);
