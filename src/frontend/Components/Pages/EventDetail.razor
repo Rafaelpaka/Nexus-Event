@@ -1,0 +1,102 @@
+@page "/evento-detalhes/{Titulo}"
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<div class="events-page-container">
+    @if (evento == null)
+    {
+        <div class="loading-state"><p>Carregando detalhes...</p></div>
+    }
+    else
+    {
+        @* Banner de Destaque *@
+        <section class="event-hero-detail" style="background-image: linear-gradient(rgba(95, 13, 81, 0.8), rgba(95, 13, 81, 0.8)), url('@evento.ImagemUrl'); background-size: cover; background-position: center; padding: 60px 20px; color: white;">
+            <div class="hero-content-nexus" style="max-width: 1200px; margin: 0 auto;">
+                <span class="badge-highlight">@evento.Categoria</span>
+                <h1 style="font-size: 3rem; margin: 15px 0;">@evento.Titulo</h1>
+                <p><i class="bi bi-geo-alt"></i> @evento.Local | <i class="bi bi-calendar"></i> @evento.Data.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+        </section>
+
+        <div class="detail-content-grid" style="display: grid; grid-template-columns: 1fr 400px; gap: 30px; max-width: 1200px; margin: 30px auto; padding: 0 20px;">
+            @* Descrição *@
+            <div class="info-section">
+                <h3>Sobre o Evento</h3>
+                <p>Prepare-se para uma experiência única na Nexus! O evento @evento.Titulo traz o melhor do entretenimento.</p>
+                
+                <div class="event-features" style="margin-top: 20px; display: flex; gap: 20px;">
+                    <span><i class="bi bi-check-circle"></i> Abertura: 18h</span>
+                    <span><i class="bi bi-check-circle"></i> +16 anos</span>
+                </div>
+            </div>
+
+            @* Ingressos *@
+            <div class="tickets-section">
+                <h3 style="margin-bottom: 20px;">Ingressos Disponíveis</h3>
+                
+                @foreach (var ingresso in IngressosDisponiveis)
+                {
+                    <div class="ticket-type-card" style="border: 1px solid #ddd; padding: 20px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="ticket-info">
+                            <h4 style="margin: 0;">@ingresso.Nome</h4>
+                            <p style="margin: 5px 0; font-size: 0.9rem; color: #666;">@ingresso.Descricao</p>
+                            <span class="ticket-price" style="font-weight: bold; color: #5f0d51;">@ingresso.Preco.ToString("C")</span>
+                        </div>
+                        @* Usei a classe main-button para manter seu padrão *@
+                        <button class="main-button" style="padding: 10px 15px;" @onclick="() => Comprar(ingresso)">
+                            Selecionar
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Titulo { get; set; }
+    private Evento? evento;
+
+    private List<IngressoTipo> IngressosDisponiveis = new()
+    {
+        new IngressoTipo { Nome = "Pista Comum", Preco = 150.00m, Descricao = "Acesso à área geral." },
+        new IngressoTipo { Nome = "Pista Premium", Preco = 350.00m, Descricao = "Frente ao palco." },
+        new IngressoTipo { Nome = "Camarote Nexus", Preco = 600.00m, Descricao = "Vista privilegiada." }
+    };
+
+    protected override void OnInitialized()
+    {
+        // Simulamos o objeto baseado no parâmetro da URL
+        evento = new Evento { 
+            Titulo = Titulo ?? "Evento", 
+            Local = "Arena Nexus Central", 
+            Data = DateTime.Now.AddDays(30),
+            ImagemUrl = "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=1000",
+            Categoria = "Música"
+        };
+    }
+
+    private void Comprar(IngressoTipo ingresso)
+    {
+        var url = $"/carrinho?titulo={Uri.EscapeDataString(evento!.Titulo + " - " + ingresso.Nome)}" +
+                  $"&preco={ingresso.Preco}" +
+                  $"&local={Uri.EscapeDataString(evento.Local)}" +
+                  $"&img={Uri.EscapeDataString(evento.ImagemUrl)}";
+        
+        Nav.NavigateTo(url);
+    }
+
+    public class IngressoTipo {
+        public string Nome { get; set; } = "";
+        public decimal Preco { get; set; }
+        public string Descricao { get; set; } = "";
+    }
+
+    public class Evento {
+        public string Titulo { get; set; } = "";
+        public string Local { get; set; } = "";
+        public DateTime Data { get; set; }
+        public string Categoria { get; set; } = "";
+        public string ImagemUrl { get; set; } = "";
+    }
+}

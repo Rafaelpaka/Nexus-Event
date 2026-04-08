@@ -1,0 +1,44 @@
+## Build
+bin/
+obj/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio
+.vs/
+
+## Rider
+.idea/
+
+## VS Code
+.vscode/
+
+## Logs
+*.log
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## NuGet
+*.nupkg
+.nuget/
+
+## Blazor / static web assets cache
+wwwroot/_framework/
+wwwroot/_content/
+
+## Publish output
+publish/
+dist/
+
+## Test results
+TestResults/
+
+## Temporary files
+*.tmp
+*.temp
