@@ -9,15 +9,22 @@ using backend.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Connection String
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirBlazor", policy =>
+    {
+        policy.WithOrigins("https://localhost:7000", "http://localhost:5000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")!;
 
-// Repositories
 builder.Services.AddScoped<UsuarioRepository>(_ =>
     new UsuarioRepository(connectionString));
 builder.Services.AddScoped<EventoRepository>(_ =>
@@ -27,27 +34,23 @@ builder.Services.AddScoped<CupomRepository>(_ =>
 builder.Services.AddScoped<ReservaRepository>(_ =>
     new ReservaRepository(connectionString));
 
-// Services
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<EventoService>();
 builder.Services.AddScoped<CupomService>();
 builder.Services.AddScoped<ReservaService>();
-
-// ✅ Seed Service
-//builder.Services.AddScoped<SeedService>();
+builder.Services.AddScoped<SeedService>();
 
 var app = builder.Build();
 
-// Swagger UI
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseCors("PermitirBlazor");
 
-// ✅ Executa o Seed ao iniciar
-//using (var scope = app.Services.CreateScope())
-//{
- //   var seed = scope.ServiceProvider.GetRequiredService<SeedService>();
-//    await seed.CriarAdminSeNaoExistir();
-//}
+using (var scope = app.Services.CreateScope())
+{
+    var seed = scope.ServiceProvider.GetRequiredService<SeedService>();
+    await seed.CriarAdminSeNaoExistir();
+}
 
 // ==========================================
 // POST /api/usuarios
@@ -60,14 +63,15 @@ app.MapPost("/api/usuarios", async (
     {
         UsuarioValidator.ValidarCamposObrigatorios(request);
         UsuarioValidator.ValidarEmail(request.Email);
-        UsuarioValidator.ValidarSenhaForte(request.SenhaHash);
+        UsuarioValidator.ValidarSenhaForte(request.Senha);
 
         var entity = new UsuarioEntity
         {
-            Cpf      = request.Cpf,
-            Nome     = request.Nome,
-            Email    = request.Email,
-            SenhaHash = request.SenhaHash,
+            Cpf = request.Cpf,
+            Nome = request.Nome,
+            Email = request.Email,
+            Login = request.Login,
+            SenhaHash = request.Senha,
             Telefone = request.Telefone,
             Endereco = request.Endereco
         };
@@ -96,10 +100,10 @@ app.MapPost("/api/eventos", async (
     {
         var entity = new EventoEntity
         {
-            Nome            = request.Nome,
+            Nome = request.Nome,
             CapacidadeTotal = request.CapacidadeTotal,
-            DataEvento      = request.DataEvento,
-            PrecoPadrao     = request.PrecoPadrao
+            DataEvento = request.DataEvento,
+            PrecoPadrao = request.PrecoPadrao
         };
 
         var (sucesso, mensagem) = await service.Cadastrar(entity);
@@ -135,9 +139,11 @@ app.MapPost("/api/cupons", async (
     {
         var entity = new CupomEntity
         {
-            Codigo              = request.Codigo,
+            Codigo = request.Codigo,
             PorcentagemDesconto = request.PorcentagemDesconto,
-            ValorMinimoRegra    = request.ValorMinimoRegra
+            ValorMinimoRegra = request.ValorMinimoRegra,
+            LimiteUsoPorUsuario = request.LimiteUsoPorUsuario,
+            Disponibilidade = request.Disponibilidade
         };
 
         var (sucesso, mensagem) = await service.Cadastrar(entity);
@@ -151,6 +157,21 @@ app.MapPost("/api/cupons", async (
     {
         return Results.BadRequest(ex.Message);
     }
+});
+
+// ==========================================
+// PUT /api/cupons/{codigo}/desativar
+// ==========================================
+app.MapPut("/api/cupons/{codigo}/desativar", async (
+    string codigo,
+    ReservaService service) =>
+{
+    var (sucesso, mensagem) = await service.Desativar(codigo);
+
+    if (!sucesso)
+        return Results.BadRequest(mensagem);
+
+    return Results.Ok(mensagem);
 });
 
 // ==========================================
@@ -183,6 +204,29 @@ app.MapPost("/api/reservas", async (
             return Results.BadRequest(mensagem);
 
         return Results.Created("/api/reservas", reserva);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+});
+
+// ==========================================
+// DELETE /api/reservas/{id}/{cpf}
+// ==========================================
+app.MapDelete("/api/reservas/{id}/{cpf}", async (
+    int id,
+    string cpf,
+    ReservaService service) =>
+{
+    try
+    {
+        var (sucesso, mensagem) = await service.Cancelar(id, cpf);
+
+        if (!sucesso)
+            return Results.BadRequest(mensagem);
+
+        return Results.Ok(mensagem);
     }
     catch (ArgumentException ex)
     {

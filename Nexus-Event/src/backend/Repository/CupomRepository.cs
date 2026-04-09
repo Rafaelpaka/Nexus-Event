@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using backend.Entities;
@@ -25,6 +25,7 @@ public class CupomRepository
         );
     }
 
+
     public async Task<int> Cadastrar(CupomEntity cupom)
     {
         using var db = CriarConexao();
@@ -37,6 +38,16 @@ public class CupomRepository
                 cupom.PorcentagemDesconto,
                 cupom.ValorMinimoRegra
             }
+        );
+    }
+    public async Task<int> Desativar(string codigo)
+    {
+        using var db = CriarConexao();
+        return await db.ExecuteAsync(
+            @"UPDATE Cupons 
+          SET Disponibilidade = 0 
+          WHERE Codigo = @Codigo",
+            new { Codigo = codigo }
         );
     }
 }
