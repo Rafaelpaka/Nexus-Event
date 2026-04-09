@@ -1,0 +1,96 @@
+﻿@page "/minhas-reservas"
+@using frontend.Models
+@using frontend.Services
+@inject ReservaService ReservaService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="events-page-container">
+    <section class="events-header-nexus">
+        <h1>Minhas Reservas</h1>
+        <p>Acompanhe seus ingressos comprados.</p>
+    </section>
+
+    @if (!AuthService.EstaLogado)
+    {
+        <div style="text-align:center; padding:2rem;">
+            <p>Você precisa estar logado para ver suas reservas.</p>
+            <a href="/login" class="main-button">Fazer Login</a>
+        </div>
+    }
+    else if (reservas is null)
+    {
+        <p style="text-align:center">Carregando...</p>
+    }
+    else if (!reservas.Any())
+    {
+        <div style="text-align:center; padding:2rem;">
+            <p>Você ainda não tem reservas.</p>
+            <a href="/eventos" class="main-button">Ver Eventos</a>
+        </div>
+    }
+    else
+    {
+        <div style="max-width:800px; margin:0 auto; padding:0 1.5rem;">
+            @foreach (var reserva in reservas)
+            {
+                <div style="
+                    background:white;
+                    border-radius:16px;
+                    padding:1.5rem;
+                    margin-bottom:1rem;
+                    box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h3 style="color:#5f0d51; margin:0">@reserva.NomeEvento</h3>
+                            <p style="color:#666; margin:4px 0">
+                                Código: <strong>@reserva.CodigoReserva</strong>
+                            </p>
+                            @if (!string.IsNullOrEmpty(reserva.CupomUtilizado))
+                            {
+                                <p style="color:#666; margin:4px 0">
+                                    Cupom: <strong>@reserva.CupomUtilizado</strong>
+                                </p>
+                            }
+                        </div>
+                        <div style="text-align:right;">
+                            <p style="font-size:1.4rem; font-weight:800; color:#5f0d51; margin:0">
+                                @reserva.ValorFinalPago.ToString("C")
+                            </p>
+                            <button @onclick="() => Cancelar(reserva.Id)"
+                                style="
+                                    background:#ef4444;
+                                    color:white;
+                                    border:none;
+                                    border-radius:8px;
+                                    padding:8px 16px;
+                                    cursor:pointer;
+                                    margin-top:8px;">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<ReservaModel>? reservas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.EstaLogado)
+        {
+            reservas = await ReservaService.ListarPorCpf(AuthService.UsuarioAtual!.Cpf);
+        }
+    }
+
+    private async Task Cancelar(int id)
+    {
+        var (ok, mensagem) = await ReservaService.Cancelar(id, AuthService.UsuarioAtual!.Cpf);
+        if (ok)
+            reservas = await ReservaService.ListarPorCpf(AuthService.UsuarioAtual!.Cpf);
+    }
+}

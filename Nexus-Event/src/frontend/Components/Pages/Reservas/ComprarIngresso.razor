@@ -1,0 +1,85 @@
+﻿@page "/comprar/{EventoId:int}"
+@using frontend.Models
+@using frontend.Services
+@inject ReservaService ReservaService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Comprar Ingresso</h1>
+
+        @if (!AuthService.EstaLogado)
+        {
+            <p>Você precisa estar logado para comprar ingressos.</p>
+            <a href="/login" class="auth-main-button">Fazer Login</a>
+        }
+        else
+        {
+            <p>CPF: <strong>@AuthService.UsuarioAtual!.Cpf</strong></p>
+            <p>Evento ID: <strong>@EventoId</strong></p>
+
+            <div class="form-group">
+                <label>Cupom (opcional)</label>
+                <input class="form-control-custom" type="text"
+                       placeholder="Digite o código do cupom"
+                       @bind="codigoCupom" />
+            </div>
+
+            <button type="button" class="auth-main-button"
+                    @onclick="Comprar" disabled="@carregando">
+                @(carregando ? "Processando..." : "Confirmar Compra")
+            </button>
+
+            @if (!string.IsNullOrEmpty(erro))
+            {
+                <div style="background:#fee2e2;border:1px solid #ef4444;border-radius:8px;padding:12px;margin-top:1rem;color:#b91c1c;">
+                    ⚠️ @erro
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(sucesso))
+            {
+                <div style="background:#dcfce7;border:1px solid #22c55e;border-radius:8px;padding:12px;margin-top:1rem;color:#15803d;">
+                    ✅ @sucesso
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int EventoId { get; set; }
+
+    private string? codigoCupom;
+    private string? erro;
+    private string? sucesso;
+    private bool carregando = false;
+
+    private async Task Comprar()
+    {
+        erro = null;
+        sucesso = null;
+        carregando = true;
+
+        var request = new CriarReservaRequest
+        {
+            UsuarioCpf  = AuthService.UsuarioAtual!.Cpf,
+            EventoId    = EventoId,
+            CodigoCupom = codigoCupom
+        };
+
+        var (ok, mensagem) = await ReservaService.Criar(request);
+        carregando = false;
+
+        if (ok)
+        {
+            sucesso = mensagem;
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/minhas-reservas");
+        }
+        else
+        {
+            erro = mensagem;
+        }
+    }
+}

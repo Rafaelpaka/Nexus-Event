@@ -1,32 +1,20 @@
-using frontend.Components;
-using backend.Services;
-using backend.Repositories;
+﻿using frontend.Services;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<frontend.Components.App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.AddScoped<UsuarioRepository>(sp => new UsuarioRepository(connectionString!));
-builder.Services.AddScoped<UsuarioService>();
-
-var app = builder.Build();
-
-if (!app.Environment.IsDevelopment())
+builder.Services.AddScoped(sp => new HttpClient
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
-}
+    BaseAddress = new Uri("http://localhost:5178")
+});
 
-app.UseHttpsRedirection();
+builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<EventoService>();
+builder.Services.AddScoped<CupomService>();
+builder.Services.AddScoped<ReservaService>();
+builder.Services.AddSingleton<AuthService>();
 
-
-app.UseAntiforgery();
-
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
-app.Run();
+await builder.Build().RunAsync();

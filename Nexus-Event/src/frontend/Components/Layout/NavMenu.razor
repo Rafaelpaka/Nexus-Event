@@ -1,33 +1,84 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid brand-wrapper">
-        <a class="navbar-brand" href="">
-            <span class="brand-highlight">Nexus</span> Event
-        </a>
+﻿@using frontend.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<nav style="
+    background: linear-gradient(90deg, #5f0d51, #a41bb6);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;">
+
+    <a href="/" style="color:white; font-weight:800; font-size:1.2rem; text-decoration:none;">
+        🎟️ NexusEvent
+    </a>
+
+    <div style="display:flex; gap:1rem; align-items:center;">
+        <NavLink href="/eventos" style="color:white; text-decoration:none;">
+            Eventos
+        </NavLink>
+
+        @if (AuthService.EstaLogado)
+        {
+            <NavLink href="/minhas-reservas" style="color:white; text-decoration:none;">
+                Minhas Reservas
+            </NavLink>
+
+            @if (AuthService.EhAdmin)
+            {
+                <NavLink href="/admin/eventos" style="color:#ffd54a; text-decoration:none; font-weight:700;">
+                    ⚙️ Admin Eventos
+                </NavLink>
+                <NavLink href="/admin/cupons" style="color:#ffd54a; text-decoration:none; font-weight:700;">
+                    ⚙️ Admin Cupons
+                </NavLink>
+            }
+
+            <span style="color:#d1d5db;">Olá, @AuthService.UsuarioAtual!.Nome</span>
+
+            <button @onclick="Sair" style="
+                background:transparent;
+                border:1px solid white;
+                color:white;
+                border-radius:8px;
+                padding:6px 14px;
+                cursor:pointer;">
+                Sair
+            </button>
+        }
+        else
+        {
+            <NavLink href="/login" style="color:white; text-decoration:none;">
+                Entrar
+            </NavLink>
+            <NavLink href="/register" style="
+                background:#ffd54a;
+                color:#5f0d51;
+                padding:6px 14px;
+                border-radius:8px;
+                text-decoration:none;
+                font-weight:700;">
+                Cadastrar
+            </NavLink>
+        }
     </div>
-</div>
+</nav>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column nav-menu-custom">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link nav-link-custom" href="" Match="NavLinkMatch.All">
-                <span class="nav-icon">🏠</span>
-                <span>Home</span>
-            </NavLink>
-        </div>
+@code {
+    protected override void OnInitialized()
+    {
+        AuthService.OnChange += StateHasChanged;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link nav-link-custom login-link" href="login">
-                <span class="nav-icon">👤</span>
-                <span>Inscreva-se ou Entre</span>
-            </NavLink>
-        </div>
+    private void Sair()
+    {
+        AuthService.Deslogar();
+        Navigation.NavigateTo("/");
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="eventos">
-                <span class="nav-icon">🎆</span>
-                <span class="bi bi-calendar-event-nav-menu" aria-hidden="true"></span> Eventos
-            </NavLink>
-        </div>
-
-    </nav>
-</div>
+    public void Dispose()
+    {
+        AuthService.OnChange -= StateHasChanged;
+    }
+}

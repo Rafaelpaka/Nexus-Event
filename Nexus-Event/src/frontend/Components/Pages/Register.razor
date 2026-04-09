@@ -1,91 +1,136 @@
 @page "/register"
-@rendermode InteractiveServer
-
-@using backend.Entities
-@using backend.Services
+@using frontend.Models
+@using frontend.Services
 @inject UsuarioService UsuarioService
+@inject NavigationManager Navigation
 
-<div class="auth-container"> 
-    <h3>Cadastro</h3>
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Cadastro</h1>
+        <p class="auth-subtitle">Crie sua conta para comprar ingressos.</p>
 
-    <div class="form-group">
-        <label>Nome</label>
-        <input class="form-control-custom"
-               type="text"
-               placeholder="Digite seu nome"
-               @bind="usuario.Nome" />
+        <div class="form-group">
+            <label>Nome</label>
+            <input class="form-control-custom" type="text"
+                   placeholder="Digite seu nome"
+                   @bind="request.Nome" />
+        </div>
+        <div class="form-group">
+            <label>CPF</label>
+            <input class="form-control-custom" type="text"
+                   placeholder="000.000.000-00"
+                   @bind="request.Cpf" />
+        </div>
+        <div class="form-group">
+            <label>E-mail</label>
+            <input class="form-control-custom" type="email"
+                   placeholder="Digite seu e-mail"
+                   @bind="request.Email" />
+        </div>
+        <div class="form-group">
+            <label>Login</label>
+            <input class="form-control-custom" type="text"
+                   placeholder="Digite seu login"
+                   @bind="request.Login" />
+        </div>
+        <div class="form-group">
+            <label>Senha</label>
+            <input class="form-control-custom" type="password"
+                   placeholder="Crie uma senha forte"
+                   @bind="request.Senha" />
+        </div>
+
+        <button type="button" class="auth-main-button" @onclick="Cadastrar" disabled="@carregando">
+            @if (carregando)
+            {
+                <span>Cadastrando...</span>
+            }
+            else
+            {
+                <span>Cadastrar</span>
+            }
+        </button>
+
+        @if (!string.IsNullOrEmpty(erro))
+        {
+            <div style="
+                background: #fee2e2;
+                border: 1px solid #ef4444;
+                border-radius: 8px;
+                padding: 12px;
+                margin-top: 1rem;
+                color: #b91c1c;">
+                ⚠️ @erro
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(sucesso))
+        {
+            <div style="
+                background: #dcfce7;
+                border: 1px solid #22c55e;
+                border-radius: 8px;
+                padding: 12px;
+                margin-top: 1rem;
+                color: #15803d;">
+                ✅ @sucesso
+                <br />
+                <small>Redirecionando para login em @contador segundos...</small>
+            </div>
+        }
+
+        <div class="auth-footer">
+            <span>Já tem conta?</span>
+            <NavLink class="link-button" href="/login">Entrar</NavLink>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label>E-mail</label>
-        <input class="form-control-custom"
-               type="email"
-               placeholder="Digite seu e-mail"
-               @bind="usuario.Email" />
-    </div>
-
-    <div class="form-group">
-        <label>CPF</label>
-        <input class="form-control-custom"
-               type="text"
-               placeholder="Digite seu CPF"
-               @bind="usuario.Cpf" />
-    </div>
-
-    <div class="form-group">
-        <label>Senha</label>
-        <input class="form-control-custom"
-               type="password"
-               placeholder="Crie uma senha"
-               @bind="usuario.SenhaHash" />
-    </div>
-
-    <button type="button" class="auth-main-button" @onclick="Cadastrar">
-    Cadastrar
-</button>
-
-    @if (!string.IsNullOrEmpty(erro))
-    {
-        <p style="color:red">@erro</p>
-    }
-
-    @if (!string.IsNullOrEmpty(sucesso))
-    {
-        <p style="color:green">@sucesso</p>
-    }
 </div>
-@code {
-    // Simplifique a inicialização. O Blazor preenche os dados via @bind.
-    private UsuarioEntity usuario = new();
 
+@code {
+    private CriarUsuarioRequest request = new();
     private string? erro;
     private string? sucesso;
+    private bool carregando = false;
+    private int contador = 3;
 
-   private async Task Cadastrar()
-{
-    erro = null;
-    sucesso = null;
-
-    Console.WriteLine($"Tentando cadastrar: {usuario.Nome}, {usuario.Email}");
-
-    try
+    private async Task Cadastrar()
     {
-        if (string.IsNullOrEmpty(usuario.Nome) || string.IsNullOrEmpty(usuario.Email))
+        erro = null;
+        sucesso = null;
+
+        if (string.IsNullOrWhiteSpace(request.Nome) ||
+            string.IsNullOrWhiteSpace(request.Cpf)  ||
+            string.IsNullOrWhiteSpace(request.Email) ||
+            string.IsNullOrWhiteSpace(request.Senha))
         {
-            erro = "Por favor, preencha os campos obrigatórios.";
+            erro = "Por favor, preencha todos os campos obrigatórios.";
             return;
         }
 
-        await UsuarioService.CriarUsuarioAsync(usuario);
-        sucesso = "Usuário cadastrado com sucesso!";
+        carregando = true;
 
-        // Aguarda o próximo ciclo de render antes de limpar
-        await Task.Delay(1);
-        usuario = new();
+        var (ok, mensagem) = await UsuarioService.Cadastrar(request);
+
+        carregando = false;
+
+        if (ok)
+        {
+            sucesso = "Usuário cadastrado com sucesso!";
+            request = new();
+
+            // Contagem regressiva antes de redirecionar
+            for (int i = 3; i > 0; i--)
+            {
+                contador = i;
+                StateHasChanged();
+                await Task.Delay(1000);
+            }
+
+            Navigation.NavigateTo("/login");
+        }
+        else
+        {
+            erro = mensagem;
+        }
     }
-    catch (Exception ex)
-    {
-        erro = "Erro ao cadastrar: " + ex.Message;
-    }
-}
 }

@@ -35,4 +35,17 @@ public class CupomService
         await _repo.Cadastrar(cupom);
         return (true, "Cupom cadastrado com sucesso.");
     }
+
+    public async Task<(bool sucesso, string mensagem)> Desativar(string codigo)
+    {
+        var cupom = await _repo.BuscarPorCodigo(codigo);
+        if (cupom is null)
+            return (false, "Cupom não encontrado.");
+
+        if (!cupom.Disponibilidade)
+            return (false, "Cupom já está inativo.");
+
+        await _repo.Desativar(codigo);
+        return (true, $"Cupom {codigo} desativado com sucesso.");
+    }
 }
