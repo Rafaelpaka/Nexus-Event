@@ -16,38 +16,45 @@ public class SeedService
 
     public async Task CriarAdminSeNaoExistir()
     {
-        // CPF do administrador padrão
-        var cpfAdmin = "000.000.000-00";
+        string? cpfAdmin = Environment.GetEnvironmentVariable("ADMIN_CPF");
+        string? emailAdmin = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
+        string? senhaAdmin = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
 
-        // Verifica se já existe
+        if (string.IsNullOrWhiteSpace(cpfAdmin) ||
+            string.IsNullOrWhiteSpace(emailAdmin) ||
+            string.IsNullOrWhiteSpace(senhaAdmin))
+        {
+            throw new InvalidOperationException("Variáveis de ambiente do admin não configuradas.");
+        }
+
         var existe = await _usuarioRepository.BuscarPorCpf(cpfAdmin);
         if (existe is not null)
         {
-            Console.WriteLine(" Admin já existe, seed ignorado.");
+            Console.WriteLine("Admin já existe, seed ignorado.");
             return;
         }
 
-        // Cria o administrador
         var admin = new UsuarioEntity
         {
             Cpf       = cpfAdmin,
             Nome      = "Administrador",
-            Email     = "admin@nexusevent.com",
-            SenhaHash = GerarHash("Admin@123")
+            Email     = emailAdmin,
+            SenhaHash = GerarHash(senhaAdmin)
         };
 
         await _usuarioRepository.CadastrarAsync(admin);
-        Console.WriteLine(" Admin criado com sucesso!");
-        Console.WriteLine("   CPF:   000.000.000-00");
-        Console.WriteLine("   Email: admin@nexusevent.com");
-        Console.WriteLine("   Senha: Admin@123");
+
+        Console.WriteLine("Admin criado com sucesso!");
+        Console.WriteLine($"CPF:   {cpfAdmin}");
+        Console.WriteLine($"Email: {emailAdmin}");
+        Console.WriteLine("Senha: (oculta por segurança)");
     }
 
     private static string GerarHash(string senha)
     {
-        using var sha256 = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes(senha);
-        var hash  = sha256.ComputeHash(bytes);
+        using SHA256 sha256 = SHA256.Create();
+        byte[] bytes = Encoding.UTF8.GetBytes(senha);
+        byte[] hash = sha256.ComputeHash(bytes);
         return Convert.ToBase64String(hash);
     }
 }
