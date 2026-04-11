@@ -6,6 +6,18 @@ using backend.Entities;
 using backend.Repositories;
 using backend.Services;
 using backend.Validators;
+using DotNetEnv;
+
+string envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+
+if (File.Exists(envPath))
+{
+    Env.Load(envPath);
+}
+else
+{
+    Console.WriteLine($".env não encontrado em: {envPath}");
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
