@@ -6,6 +6,18 @@ using backend.Entities;
 using backend.Repositories;
 using backend.Services;
 using backend.Validators;
+using DotNetEnv;
+
+string envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+
+if (File.Exists(envPath))
+{
+    Env.Load(envPath);
+}
+else
+{
+    Console.WriteLine($".env não encontrado em: {envPath}");
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -123,6 +135,107 @@ app.MapPost("/api/usuarios/login", async (
         usuario.Email
     });
 });
+
+
+// ==========================================
+// GET /api/usuarios/get
+// ==========================================
+app.MapGet("/api/usuarios/get", async (UsuarioService service) =>
+{
+    var usuarios = await service.ListarUsuariosAsync();
+    return Results.Ok(usuarios);
+});
+
+
+// ==========================================
+// GET /api/usuarios/get/{cpf}
+// ==========================================
+
+app.MapGet("/api/usuarios/getByCpf/{cpf}", async (
+    string cpf,
+    UsuarioService service) =>
+{
+    var usuario = await service.BuscarPorCpfAsync(cpf);
+    if (usuario is null)
+        return Results.NotFound("Usuário não encontrado.");
+
+    return Results.Ok(usuario);
+});
+
+
+// ==========================================
+// GET /api/usuarios/get/{email}
+// ==========================================
+
+app.MapGet("/api/usuarios/getByEmail/{email}", async (
+    string email,
+    UsuarioService service) =>
+{
+    var usuario = await service.BuscarPorEmailAsync(email);
+    if (usuario is null)
+        return Results.NotFound("Usuário não encontrado.");
+
+    return Results.Ok(usuario);
+});
+
+// ==========================================
+// PUT /api/usuarios/update
+// ==========================================
+app.MapPut("/api/usuarios/update", async (
+    AtualizarUsuarioRequest request,
+    UsuarioService service) =>
+{
+    try
+    {
+        UsuarioValidator.ValidarEmail(request.Email);
+        UsuarioValidator.ValidarSenhaForte(request.Senha);
+
+        var entity = new UsuarioEntity
+        {
+            Nome = request.Nome,
+            Email = request.Email,
+            Login = request.Login,
+            SenhaHash = request.Senha,
+            Telefone = request.Telefone,
+            Endereco = request.Endereco,
+            Cpf = request.Cpf
+        };
+
+        var atualizado = await service.AtualizarUsuarioAsync(entity);
+        return Results.Ok(atualizado);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+});
+
+// ==========================================
+// DELETE /api/usuarios/{cpf}
+// ==========================================
+app.MapDelete("/api/usuarios/{cpf}", async (
+    string cpf,
+    UsuarioService service) =>
+{
+    try
+    {
+        await service.DeletarUsuarioAsync(cpf);
+        return Results.Ok("Usuário deletado com sucesso.");
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+});
+
 
 // ==========================================
 // POST /api/eventos

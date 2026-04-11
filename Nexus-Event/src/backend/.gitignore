@@ -1,6 +1,8 @@
 ## --- Pastas de Compilação ---
 bin/
+**/bin
 obj/
+**/obj
 
 ## --- Pacotes NuGet ---
 # Não rastreamos os pacotes baixados, pois eles são restaurados via arquivo .csproj
