@@ -1,3 +1,14 @@
+# NexusEvent - Grupo composto pelos seguintes integrantes:
+
+Carol Diaz - 06010688
+
+Heloiza Custódio - 06009234
+
+Larissa Ferreira - 0601175
+
+Lohana Delgado - 06009900
+
+Rafael de Alcantara - 06010477
 # NexusEvent 🎟️
 
 Sistema de venda de ingressos desenvolvido com ASP.NET Core Minimal API, Blazor WebAssembly, Dapper e SQL Server Express.
