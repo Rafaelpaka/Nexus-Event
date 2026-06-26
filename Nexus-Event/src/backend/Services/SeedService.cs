@@ -1,7 +1,6 @@
 using backend.Entities;
 using backend.Repositories;
-using System.Security.Cryptography;
-using System.Text;
+using backend.Utils;
 
 namespace backend.Services;
 
@@ -39,7 +38,7 @@ public class SeedService
             Cpf       = cpfAdmin,
             Nome      = "Administrador",
             Email     = emailAdmin,
-            SenhaHash = GerarHash(senhaAdmin)
+            SenhaHash = HashUtils.GerarHash(senhaAdmin)
         };
 
         await _usuarioRepository.CadastrarAsync(admin);
@@ -48,13 +47,5 @@ public class SeedService
         Console.WriteLine($"CPF:   {cpfAdmin}");
         Console.WriteLine($"Email: {emailAdmin}");
         Console.WriteLine("Senha: (oculta por segurança)");
-    }
-
-    private static string GerarHash(string senha)
-    {
-        using SHA256 sha256 = SHA256.Create();
-        byte[] bytes = Encoding.UTF8.GetBytes(senha);
-        byte[] hash = sha256.ComputeHash(bytes);
-        return Convert.ToBase64String(hash);
     }
 }

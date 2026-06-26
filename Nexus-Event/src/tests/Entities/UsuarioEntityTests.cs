@@ -1,3 +1,4 @@
+using System;
 using backend.Entities;
 using Xunit;
 
@@ -6,107 +7,151 @@ namespace backend.Tests.Entities;
 public class UsuarioEntityTests
 {
     [Fact]
-    public void Deve_Criar_Usuario_Com_Dados_Validos() // Caso de Sucesso
+    public void CriarUsuario_ComDadosValidos_DeveRetornarUsuario()
     {
-        var usuario = new UsuarioEntity(
-            nome: "Larissa",
-            login: "larissa01",
-            senha: "Senha123!",
-            cpf: "12345678900",
-            email: "larissa@email.com",
-            telefone: "21999999999",
-            endereco: "Rua A"
-        );
+        // Arrange
+        var usuario = new UsuarioEntity
+        {
+            Nome = "Larissa",
+            Login = "larissa01",
+            SenhaHash = "Senha123!",
+            Cpf = "12345678900",
+            Email = "larissa@email.com",
+            Telefone = "21999999999",
+            Endereco = "Rua A"
+        };
 
+        // Act
+        var nome = usuario.Nome;
+        var login = usuario.Login;
+        var senha = usuario.SenhaHash;
+        var cpf = usuario.Cpf;
+        var email = usuario.Email;
+        var telefone = usuario.Telefone;
+        var endereco = usuario.Endereco;
+
+        // Assert
         Assert.NotNull(usuario);
-        Assert.Equal("Larissa", usuario.Nome);
-        Assert.Equal("larissa01", usuario.Login);
-        Assert.Equal("Senha123!", usuario.Senha);
-        Assert.Equal("12345678900", usuario.Cpf);
-        Assert.Equal("larissa@email.com", usuario.Email);
-        Assert.Equal("21999999999", usuario.Telefone);
-        Assert.Equal("Rua A", usuario.Endereco);
+        Assert.Equal("Larissa", nome);
+        Assert.Equal("larissa01", login);
+        Assert.Equal("Senha123!", senha);
+        Assert.Equal("12345678900", cpf);
+        Assert.Equal("larissa@email.com", email);
+        Assert.Equal("21999999999", telefone);
+        Assert.Equal("Rua A", endereco);
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Usuario_Com_Nome_Vazio()
+    public void CriarUsuario_ComNomeVazio_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
-            new UsuarioEntity(
-                nome: "",
-                login: "larissa01",
-                senha: "Senha123!",
-                cpf: "12345678900",
-                email: "larissa@email.com"
-            ));
+        {
+            _ = new UsuarioEntity
+            {
+                Nome = "",
+                Login = "larissa01",
+                SenhaHash = "Senha123!",
+                Cpf = "12345678900",
+                Email = "larissa@email.com"
+            };
+        });
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Usuario_Com_Login_Vazio()
+    public void CriarUsuario_ComLoginVazio_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
-            new UsuarioEntity(
-                nome: "Larissa",
-                login: "",
-                senha: "Senha123!",
-                cpf: "12345678900",
-                email: "larissa@email.com"
-            ));
+        {
+            _ = new UsuarioEntity
+            {
+                Nome = "Larissa",
+                Login = "",
+                SenhaHash = "Senha123!",
+                Cpf = "12345678900",
+                Email = "larissa@email.com"
+            };
+        });
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Usuario_Com_Senha_Vazia()
+    public void CriarUsuario_ComSenhaVazia_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
-            new UsuarioEntity(
-                nome: "Larissa",
-                login: "larissa01",
-                senha: "",
-                cpf: "12345678900",
-                email: "larissa@email.com"
-            ));
+        {
+            _ = new UsuarioEntity
+            {
+                Nome = "Larissa",
+                Login = "larissa01",
+                SenhaHash = "",
+                Cpf = "12345678900",
+                Email = "larissa@email.com"
+            };
+        });
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Usuario_Com_Cpf_Vazio()
+    public void CriarUsuario_ComCpfVazio_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
-            new UsuarioEntity(
-                nome: "Larissa",
-                login: "larissa01",
-                senha: "Senha123!",
-                cpf: "",
-                email: "larissa@email.com"
-            ));
+        {
+            _ = new UsuarioEntity
+            {
+                Nome = "Larissa",
+                Login = "larissa01",
+                SenhaHash = "Senha123!",
+                Cpf = "",
+                Email = "larissa@email.com"
+            };
+        });
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Usuario_Com_Email_Vazio()
+    public void CriarUsuario_ComEmailVazio_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
-            new UsuarioEntity(
-                nome: "Larissa",
-                login: "larissa01",
-                senha: "Senha123!",
-                cpf: "12345678900",
-                email: ""
-            ));
+        {
+            _ = new UsuarioEntity
+            {
+                Nome = "Larissa",
+                Login = "larissa01",
+                SenhaHash = "Senha123!",
+                Cpf = "12345678900",
+                Email = ""
+            };
+        });
     }
 
     [Fact]
-    public void Deve_Aceitar_Telefone_E_Endereco_Nulos()
+    public void CriarUsuario_ComTelefoneEEnderecoNulos_DeveAceitar()
     {
-        var usuario = new UsuarioEntity(
-            nome: "Larissa",
-            login: "larissa01",
-            senha: "Senha123!",
-            cpf: "12345678900",
-            email: "larissa@email.com",
-            telefone: null,
-            endereco: null
-        );
+        // Arrange
+        var usuario = new UsuarioEntity
+        {
+            Nome = "Larissa",
+            Login = "larissa01",
+            SenhaHash = "Senha123!",
+            Cpf = "12345678900",
+            Email = "larissa@email.com",
+            Telefone = null,
+            Endereco = null
+        };
 
-        Assert.Null(usuario.Telefone);
-        Assert.Null(usuario.Endereco);
+        // Act
+        var telefone = usuario.Telefone;
+        var endereco = usuario.Endereco;
+
+        // Assert
+        Assert.Null(telefone);
+        Assert.Null(endereco);
     }
 }

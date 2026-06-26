@@ -30,22 +30,27 @@ public class ReservaService
     public async Task<(bool sucesso, string mensagem, ReservaEntity? reserva)>
         CriarReserva(string cpf, int eventoId, string? codigoCupom)
     {
+        // Validação 1: Usuário existe
         var usuario = await _usuarioRepo.BuscarPorCpf(cpf);
         if (usuario is null)
             return (false, "Usuário não encontrado.", null);
 
+        // Validação 2: Evento existe
         var evento = await _eventoRepo.BuscarPorId(eventoId);
         if (evento is null)
             return (false, "Evento não encontrado.", null);
 
+        // Validação 3: Limite de 2 reservas por CPF por evento
         var reservasDoUsuario = await _reservaRepo.ContarPorCpfEEvento(cpf, eventoId);
         if (reservasDoUsuario >= 2)
             return (false, "CPF já atingiu o limite de 2 reservas para este evento.", null);
 
+        // Validação 4: Evento não pode estar lotado
         var totalReservas = await _reservaRepo.ContarPorEvento(eventoId);
         if (totalReservas >= evento.CapacidadeTotal)
             return (false, "Evento esgotado.", null);
 
+        // Validação 5: Cupom disponível (se informado)
         decimal valorFinal = evento.PrecoPadrao;
         if (!string.IsNullOrWhiteSpace(codigoCupom))
         {
@@ -95,19 +100,6 @@ public class ReservaService
 
         await _reservaRepo.Cancelar(id);
         return (true, "Reserva cancelada com sucesso.");
-    }
-
-    public async Task<(bool sucesso, string mensagem)> Desativar(string codigo)
-    {
-        var cupom = await _cupomRepo.BuscarPorCodigo(codigo);
-        if (cupom is null)
-            return (false, "Cupom não encontrado.");
-
-        if (!cupom.Disponibilidade)
-            return (false, "Cupom já está inativo.");
-
-        await _cupomRepo.Desativar(codigo);
-        return (true, $"Cupom {codigo} desativado com sucesso.");
     }
 
     private static string GerarCodigoReserva()

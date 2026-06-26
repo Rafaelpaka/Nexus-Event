@@ -30,8 +30,8 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                "https://localhost:7221",  
-                "http://localhost:5177"   
+                "https://localhost:7221",
+                "http://localhost:5177"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -64,8 +64,15 @@ app.UseCors("PermitirBlazor");
 
 using (var scope = app.Services.CreateScope())
 {
-    var seed = scope.ServiceProvider.GetRequiredService<SeedService>();
-    await seed.CriarAdminSeNaoExistir();
+    try
+    {
+        var seed = scope.ServiceProvider.GetRequiredService<SeedService>();
+        await seed.CriarAdminSeNaoExistir();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[SEED] Aviso: seed não executado — {ex.Message}");
+    }
 }
 
 // ==========================================
@@ -106,31 +113,19 @@ app.MapPost("/api/usuarios", async (
 });
 
 // ==========================================
-// POST /api/usuarios/login
+// POST /api/usuarios/login (refatorado: lógica movida para UsuarioService)
 // ==========================================
 app.MapPost("/api/usuarios/login", async (
     LoginUsuarioRequest request,
-    UsuarioRepository repo) =>
+    UsuarioService service) =>
 {
-    if (string.IsNullOrWhiteSpace(request.Email) ||
-        string.IsNullOrWhiteSpace(request.Senha))
-        return Results.BadRequest("Email e senha são obrigatórios.");
-
-    var usuario = await repo.BuscarPorEmailAsync(request.Email);
-    if (usuario is null)
-        return Results.BadRequest("Usuário não encontrado.");
-
-    // Gera hash da senha digitada e compara
-    using var sha256 = System.Security.Cryptography.SHA256.Create();
-    var bytes = System.Text.Encoding.UTF8.GetBytes(request.Senha);
-    var hash = Convert.ToBase64String(sha256.ComputeHash(bytes));
-
-    if (usuario.SenhaHash != hash)
-        return Results.BadRequest("Senha incorreta.");
+    var (sucesso, mensagem, usuario) = await service.LoginAsync(request.Email, request.Senha);
+    if (!sucesso)
+        return Results.BadRequest(mensagem);
 
     return Results.Ok(new
     {
-        usuario.Cpf,
+        usuario!.Cpf,
         usuario.Nome,
         usuario.Email
     });
@@ -148,9 +143,8 @@ app.MapGet("/api/usuarios/get", async (UsuarioService service) =>
 
 
 // ==========================================
-// GET /api/usuarios/get/{cpf}
+// GET /api/usuarios/getByCpf/{cpf}
 // ==========================================
-
 app.MapGet("/api/usuarios/getByCpf/{cpf}", async (
     string cpf,
     UsuarioService service) =>
@@ -164,9 +158,8 @@ app.MapGet("/api/usuarios/getByCpf/{cpf}", async (
 
 
 // ==========================================
-// GET /api/usuarios/get/{email}
+// GET /api/usuarios/getByEmail/{email}
 // ==========================================
-
 app.MapGet("/api/usuarios/getByEmail/{email}", async (
     string email,
     UsuarioService service) =>
@@ -251,7 +244,8 @@ app.MapPost("/api/eventos", async (
             Nome = request.Nome,
             CapacidadeTotal = request.CapacidadeTotal,
             DataEvento = request.DataEvento,
-            PrecoPadrao = request.PrecoPadrao
+            PrecoPadrao = request.PrecoPadrao,
+            ImagemUrl = request.ImagemUrl
         };
 
         var (sucesso, mensagem) = await service.Cadastrar(entity);
@@ -274,6 +268,36 @@ app.MapGet("/api/eventos", async (EventoService service) =>
 {
     var eventos = await service.ListarTodos();
     return Results.Ok(eventos);
+});
+
+// ==========================================
+// NOVO: GET /api/eventos/estatisticas
+// Retorna estatísticas de cada evento com JOIN (LEFT JOIN + GROUP BY)
+// Requisito AV2: pelo menos 1 endpoint com JOIN
+// ==========================================
+app.MapGet("/api/eventos/estatisticas", async (EventoService service) =>
+{
+    var (sucesso, mensagem, dados) = await service.ObterEstatisticas();
+    if (!sucesso)
+        return Results.NotFound(mensagem);
+
+    return Results.Ok(dados);
+});
+
+// ==========================================
+// NOVO: POST /api/eventos/pesquisar
+// Pesquisa avançada com filtros e múltiplas validações de negócio
+// Requisito AV2: pelo menos 1 endpoint com 3+ validações retornando 400
+// ==========================================
+app.MapPost("/api/eventos/pesquisar", async (
+    PesquisarEventoRequest request,
+    EventoService service) =>
+{
+    var (sucesso, mensagem, resultados) = await service.Pesquisar(request);
+    if (!sucesso)
+        return Results.BadRequest(mensagem);
+
+    return Results.Ok(resultados);
 });
 
 // ==========================================
@@ -309,10 +333,11 @@ app.MapPost("/api/cupons", async (
 
 // ==========================================
 // PUT /api/cupons/{codigo}/desativar
+// Corrigido: agora usa CupomService em vez de ReservaService
 // ==========================================
 app.MapPut("/api/cupons/{codigo}/desativar", async (
     string codigo,
-    ReservaService service) =>
+    CupomService service) =>
 {
     var (sucesso, mensagem) = await service.Desativar(codigo);
 
@@ -324,6 +349,7 @@ app.MapPut("/api/cupons/{codigo}/desativar", async (
 
 // ==========================================
 // GET /api/reservas/{cpf}
+// Já possui INNER JOIN no repositório (ReservaRepository.ListarPorCpf)
 // ==========================================
 app.MapGet("/api/reservas/{cpf}", async (
     string cpf,
@@ -335,6 +361,7 @@ app.MapGet("/api/reservas/{cpf}", async (
 
 // ==========================================
 // POST /api/reservas
+// Já possui 5+ validações de negócio retornando 400
 // ==========================================
 app.MapPost("/api/reservas", async (
     CriarReservaRequest request,

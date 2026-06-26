@@ -1,26 +1,19 @@
-# NexusEvent - Grupo composto pelos seguintes integrantes:
-
-Carol Diaz - 06010688
-
-Heloiza Custódio - 06009234
-
-Larissa Ferreira - 06011175
-
-Lohana Delgado - 06009900
-
-Rafael de Alcantara - 06010477
 # NexusEvent 🎟️
 
 Sistema de venda de ingressos desenvolvido com ASP.NET Core Minimal API, Blazor WebAssembly, Dapper e SQL Server Express.
-Sistema de venda de ingressos desenvolvido com ASP.NET Core Minimal API, Blazor WebAssembly, Dapper e SQL Server Express.
+
+**Grupo:**
+- Carol Diaz — 06010688
+- Heloiza Custódio — 06009234
+- Larissa Ferreira — 06011175
+- Lohana Delgado — 06009900
+- Rafael de Alcantara — 06010477
 
 ## Requisitos
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download)
-- [.NET 9 SDK](https://dotnet.microsoft.com/download)
 - [SQL Server Express](https://www.microsoft.com/sql-server/sql-server-downloads)
-- [SQL Server Management Studio - SSMS](https://aka.ms/ssmsfullsetup)
-- Navegador moderno (Chrome, Edge, Firefox)
+- [SQL Server Management Studio — SSMS](https://aka.ms/ssmsfullsetup)
 - Navegador moderno (Chrome, Edge, Firefox)
 
 ## Instalação
@@ -37,105 +30,72 @@ Abra o SSMS e conecte em:
 Server name:    localhost\SQLEXPRESS
 Authentication: Windows Authentication
 ```
-> ⚠️ Se aparecer erro de SSL, marque a opção **"Certificado do Servidor de Confiança"**
 
 Execute o script de criação do banco:
-```
-/db/create_tables.sql
-```
-Abra o arquivo no SSMS e pressione **F5**
+- Abra o arquivo `db/create_tables.sql` no SSMS e pressione **F5**
 
 ### 3. Configure o arquivo `.env`
-
-Crie o arquivo `.env` dentro da pasta `src/backend/`:
-```bash
-cp src/backend/.env.example src/backend/.env
-```
-
-Edite o arquivo com suas configurações:
+Crie o arquivo `src/backend/.env`:
 ```env
-ADMIN_PASSWORD=Admin@123
-ADMIN_EMAIL=admin@nexusevent.com
-ADMIN_CPF=000.000.000-00
-DB_CONNECTION=Server=localhost\SQLEXPRESS;Database=NexusEvent;Trusted_Connection=True;TrustServerCertificate=True;
+ADMIN_CPF=00000000000
+ADMIN_EMAIL=admin@teste.com
+ADMIN_PASSWORD=Admin123!
 ```
 
-> ⚠️ O arquivo `.env` não é enviado para o repositório. Nunca compartilhe suas credenciais.
-
-### 4. Instale os pacotes do Backend
+### 4. Restaure os pacotes
 ```bash
 cd src/backend
-dotnet add package Dapper
-dotnet add package Microsoft.Data.SqlClient
-dotnet add package Swashbuckle.AspNetCore
-dotnet add package DotNetEnv
 dotnet restore
-```
 
-### 5. Instale os pacotes do Frontend
-```bash
-cd src/frontend
-dotnet add package Microsoft.AspNetCore.Components.WebAssembly
-dotnet add package Microsoft.AspNetCore.Components.WebAssembly.DevServer
-cd src/frontend
-dotnet add package Microsoft.AspNetCore.Components.WebAssembly
-dotnet add package Microsoft.AspNetCore.Components.WebAssembly.DevServer
+cd ../frontend
 dotnet restore
 ```
 
 ## Rodando o Projeto
 
 ### Backend — Terminal 1
-
-### Backend — Terminal 1
 ```bash
 cd src/backend
 dotnet run
 ```
-Acesse o Swagger em:
-```
-http://localhost:5178/swagger
-```
+Acesse o Swagger em: `http://localhost:5178/swagger`
 
 ### Frontend — Terminal 2
 ```bash
 cd src/frontend
 dotnet run
 ```
-Acesse o sistema em:
-```
-http://localhost:5177
-```
-
-> ⚠️ As portas podem variar. Confirme no terminal após o `dotnet run`
+Acesse o sistema em: `http://localhost:5177`
 
 ## Usuário Administrador
 
-O sistema cria automaticamente um usuário administrador ao iniciar com base no `.env`:
+| Campo | Valor |
+|-------|-------|
+| CPF | `00000000000` |
+| Email | `admin@teste.com` |
+| Senha | `Admin123!` |
 
-| Campo | Valor padrão |
-|---|---|
-| CPF | `000.000.000-00` |
-| Email | `admin@nexusevent.com` |
-| Senha | `Admin@123` |
+O administrador tem acesso ao cadastro de eventos e cupons via menu **⚙️ Admin**.
 
-> ⚠️ O administrador tem acesso exclusivo ao cadastro de eventos e cupons.
-
-## Endpoints
+## Endpoints da API
 
 | Método | Rota | Descrição |
-|---|---|---|
+|--------|------|-----------|
 | POST | `/api/usuarios` | Cadastra um usuário |
 | POST | `/api/usuarios/login` | Realiza login |
-| POST | `/api/usuarios/login` | Realiza login |
+| GET | `/api/usuarios/get` | Lista todos os usuários |
+| GET | `/api/usuarios/getByCpf/{cpf}` | Busca usuário por CPF |
+| GET | `/api/usuarios/getByEmail/{email}` | Busca usuário por email |
+| PUT | `/api/usuarios/update` | Atualiza dados do usuário |
+| DELETE | `/api/usuarios/{cpf}` | Remove um usuário |
 | POST | `/api/eventos` | Cadastra um evento |
 | GET | `/api/eventos` | Lista todos os eventos |
+| GET | `/api/eventos/estatisticas` | 📊 Estatísticas com JOIN |
+| POST | `/api/eventos/pesquisar` | 🔍 Pesquisa avançada com filtros |
 | POST | `/api/cupons` | Cadastra um cupom |
 | PUT | `/api/cupons/{codigo}/desativar` | Desativa um cupom |
-| PUT | `/api/cupons/{codigo}/desativar` | Desativa um cupom |
-| GET | `/api/reservas/{cpf}` | Lista reservas por CPF |
+| GET | `/api/reservas/{cpf}` | Lista reservas por CPF (JOIN) |
 | POST | `/api/reservas` | Realiza uma reserva |
-| DELETE | `/api/reservas/{id}/{cpf}` | Cancela uma reserva |
 | DELETE | `/api/reservas/{id}/{cpf}` | Cancela uma reserva |
 
 ## Exemplos de Uso
@@ -144,19 +104,10 @@ O sistema cria automaticamente um usuário administrador ao iniciar com base no 
 ```json
 POST /api/usuarios
 {
-  "cpf": "123.456.789-00",
+  "cpf": "12345678900",
   "nome": "João Silva",
   "email": "joao@email.com",
   "login": "joaosilva",
-  "senha": "Senha@123"
-}
-```
-
-### Login
-```json
-POST /api/usuarios/login
-{
-  "email": "joao@email.com",
   "senha": "Senha@123"
 }
 ```
@@ -177,7 +128,8 @@ POST /api/eventos
   "nome": "Show de Rock",
   "capacidadeTotal": 100,
   "dataEvento": "2026-12-01T20:00:00",
-  "precoPadrao": 150.00
+  "precoPadrao": 150.00,
+  "imagemUrl": "https://exemplo.com/foto.jpg"
 }
 ```
 
@@ -190,9 +142,6 @@ POST /api/cupons
   "valorMinimoRegra": 100.00,
   "limiteUsoPorUsuario": 2,
   "disponibilidade": true
-  "valorMinimoRegra": 100.00,
-  "limiteUsoPorUsuario": 2,
-  "disponibilidade": true
 }
 ```
 
@@ -200,7 +149,7 @@ POST /api/cupons
 ```json
 POST /api/reservas
 {
-  "usuarioCpf": "123.456.789-00",
+  "usuarioCpf": "12345678900",
   "eventoId": 1,
   "codigoCupom": "DESCONTO10"
 }
@@ -208,71 +157,79 @@ POST /api/reservas
 
 ### Cancelar Reserva
 ```
-DELETE /api/reservas/1/123.456.789-00
-```
-
-### Cancelar Reserva
-```
-DELETE /api/reservas/1/123.456.789-00
+DELETE /api/reservas/1/12345678900
 ```
 
 ### Listar Reservas por CPF
 ```
-GET /api/reservas/123.456.789-00
+GET /api/reservas/12345678900
 ```
 
 ## Regras de Negócio
 
 | Regra | Descrição |
-|---|---|
+|-------|-----------|
 | R1 | CPF e EventoId devem existir no banco |
 | R2 | Mesmo CPF não pode ter mais de 2 reservas por evento |
 | R3 | Não é possível reservar em evento lotado |
-| R4 | Desconto só é aplicado se o preço for maior ou igual ao valor mínimo do cupom |
+| R4 | Desconto só é aplicado se o preço ≥ valor mínimo do cupom |
+| R5 | Cupom inativo ou com limite de uso excedido é recusado |
+| R6 | Senha deve ter 8+ caracteres, maiúscula, minúscula, número e especial |
 
-## Estrutura do Repositório
-
+## Estrutura do Projeto
 
 ```
 NexusEvent/
 ├── db/
 │   └── create_tables.sql
 ├── docs/
-│   └── requisitos.md
+│   ├── requisitos.md
+│   ├── analise_arquitetura.md
+│   ├── arquitetura.md
+│   ├── fluxo_manutencao.md
+│   ├── operacao.md
+│   ├── plano_iteracao.md
+│   ├── registro_divida_tecnica.md
+│   ├── seguranca_ciclo.md
+│   ├── tests.md
+│   ├── topologia_times.md
+│   └── adrs/
+│       └── 001-escolha-do-micro-orm.md
 ├── src/
 │   ├── backend/
 │   │   ├── DTOs/
 │   │   ├── Entities/
+│   │   ├── Interfaces/
 │   │   ├── Repositories/
 │   │   ├── Services/
+│   │   ├── Utils/
 │   │   ├── Validators/
-│   │   ├── .env.example
+│   │   ├── Program.cs
 │   │   ├── appsettings.json
+│   │   └── .env
+│   ├── frontend/
+│   │   ├── Components/
+│   │   │   ├── Layout/
+│   │   │   └── Pages/
+│   │   ├── Models/
+│   │   ├── Services/
+│   │   ├── wwwroot/
 │   │   └── Program.cs
-│   └── frontend/
-│       ├── Components/
-│       │   ├── Layout/
-│       │   └── Pages/
-│       ├── Models/
-│       ├── Services/
-│       ├── wwwroot/
-│       ├── wwwroot/
-│       └── Program.cs
-├── tests/
-│   └── NexusEvent.Tests/
+│   └── tests/
+│       ├── Entities/
+│       └── backend.Tests.csproj
+├── release_checklist_final.md
 └── README.md
 ```
 
 ## Tecnologias
 
 | Tecnologia | Uso |
-|---|---|
+|------------|-----|
 | ASP.NET Core 9 | Minimal API Backend |
 | Blazor WebAssembly | Frontend |
-| ASP.NET Core 9 | Minimal API Backend |
-| Blazor WebAssembly | Frontend |
-| Dapper | Acesso ao banco de dados |
+| Dapper | Micro ORM — acesso ao banco |
 | SQL Server Express | Banco de dados |
-| DotNetEnv | Variáveis de ambiente |
-| xUnit | Testes automatizados |
+| xUnit | Testes unitários |
 | Swagger | Documentação da API |
+| DotNetEnv | Variáveis de ambiente (.env) |

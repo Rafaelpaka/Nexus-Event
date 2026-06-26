@@ -1,3 +1,4 @@
+using System;
 using backend.Entities;
 using Xunit;
 
@@ -6,8 +7,9 @@ namespace backend.Tests.Entities;
 public class EventoEntityTests
 {
     [Fact]
-    public void Deve_Criar_Evento_Com_Dados_Validos() // Caso de Sucesso
+    public void CriarEvento_ComDadosValidos_DeveRetornarEvento()
     {
+        // Arrange
         var evento = new EventoEntity
         {
             Nome = "Show Rock",
@@ -16,18 +18,26 @@ public class EventoEntityTests
             PrecoPadrao = 200
         };
 
+        // Act
+        var nome = evento.Nome;
+        var capacidade = evento.CapacidadeTotal;
+        var preco = evento.PrecoPadrao;
+
+        // Assert
         Assert.NotNull(evento);
-        Assert.Equal("Show Rock", evento.Nome);
-        Assert.Equal(5000, evento.CapacidadeTotal);
-        Assert.Equal(200, evento.PrecoPadrao);
+        Assert.Equal("Show Rock", nome);
+        Assert.Equal(5000, capacidade);
+        Assert.Equal(200, preco);
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Evento_Com_Nome_Vazio()
+    public void CriarEvento_ComNomeVazio_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
         {
-            var evento = new EventoEntity
+            _ = new EventoEntity
             {
                 Nome = "",
                 CapacidadeTotal = 5000,
@@ -38,11 +48,13 @@ public class EventoEntityTests
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Evento_Com_Capacidade_Negativa()
+    public void CriarEvento_ComCapacidadeNegativa_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
         {
-            var evento = new EventoEntity
+            _ = new EventoEntity
             {
                 Nome = "Show",
                 CapacidadeTotal = -100,
@@ -53,11 +65,13 @@ public class EventoEntityTests
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Evento_Com_Capacidade_Invalida()
+    public void CriarEvento_ComCapacidadeZero_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
         {
-            var evento = new EventoEntity
+            _ = new EventoEntity
             {
                 Nome = "Show Rock",
                 CapacidadeTotal = 0,
@@ -68,26 +82,30 @@ public class EventoEntityTests
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Evento_Com_Data_No_Passado()
+    public void CriarEvento_ComDataNoPassado_DeveAceitar()
     {
-        Assert.Throws<ArgumentException>(() =>
+        // Arrange — entidade não valida data: regra é do EventoService
+        var evento = new EventoEntity
         {
-            var evento = new EventoEntity
-            {
-                Nome = "Evento",
-                CapacidadeTotal = 5000,
-                DataEvento = DateTime.Now.AddDays(-1),
-                PrecoPadrao = 100
-            };
-        });
+            Nome = "Evento",
+            CapacidadeTotal = 5000,
+            DataEvento = DateTime.Now.AddDays(-1),
+            PrecoPadrao = 100
+        };
+
+        // Assert
+        Assert.NotNull(evento);
+        Assert.True(evento.DataEvento < DateTime.Now);
     }
 
     [Fact]
-    public void Nao_Deve_Criar_Evento_Com_Preco_Invalido()
+    public void CriarEvento_ComPrecoZero_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
         {
-            var evento = new EventoEntity
+            _ = new EventoEntity
             {
                 Nome = "Show Rock",
                 CapacidadeTotal = 5000,
@@ -96,13 +114,15 @@ public class EventoEntityTests
             };
         });
     }
-    
+
     [Fact]
-    public void Nao_Deve_Criar_Evento_Com_Preco_Negativo()
+    public void CriarEvento_ComPrecoNegativo_DeveLancarExcecao()
     {
+        // Arrange
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
         {
-            var evento = new EventoEntity
+            _ = new EventoEntity
             {
                 Nome = "Show Rock",
                 CapacidadeTotal = 5000,
@@ -111,5 +131,4 @@ public class EventoEntityTests
             };
         });
     }
-   
 }

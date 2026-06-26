@@ -23,7 +23,8 @@ out/
 ## --- Logs e Arquivos Temporários ---
 *.log
 *.tmp
-.DS_Store (para Mac)
+.DS_Store
+Thumbs.db
 
 ## --- Segurança e Local (IMPORTANTE) ---
 # Evite subir segredos e configurações específicas da sua máquina
@@ -35,3 +36,7 @@ usersecrets.json
 ## --- Testes (Code Coverage) ---
 TestResults/
 *.externalsyc
+
+## --- Configurações do .NET ---
+*.DotSettings.user
+launchSettings.json

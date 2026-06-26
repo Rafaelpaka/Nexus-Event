@@ -1,6 +1,6 @@
 ## --- Pastas de Compilação ---
-bin/
-obj/
+**/bin/
+**/obj/
 
 ## --- Pacotes NuGet ---
 node_modules/
@@ -27,5 +27,4 @@ Thumbs.db
 
 ## --- Segurança ---
 .env
-appsettings.Development.json
 secrets.json
