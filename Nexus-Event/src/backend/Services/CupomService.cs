@@ -36,6 +36,7 @@ public class CupomService
         return (true, "Cupom cadastrado com sucesso.");
     }
 
+    // NOVO: Movido de ReservaService para cá (correção SRP)
     public async Task<(bool sucesso, string mensagem)> Desativar(string codigo)
     {
         var cupom = await _repo.BuscarPorCodigo(codigo);

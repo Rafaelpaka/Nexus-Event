@@ -35,4 +35,14 @@ public class UsuarioService
         var mensagem = await response.Content.ReadAsStringAsync();
         return (false, mensagem, null);
     }
+
+    public async Task<(bool sucesso, string mensagem)> Atualizar(AtualizarUsuarioRequest request)
+    {
+        var response = await _http.PutAsJsonAsync("/api/usuarios/update", request);
+        var mensagem = await response.Content.ReadAsStringAsync();
+
+        return response.IsSuccessStatusCode
+            ? (true, "Perfil atualizado com sucesso!")
+            : (false, mensagem);
+    }
 }

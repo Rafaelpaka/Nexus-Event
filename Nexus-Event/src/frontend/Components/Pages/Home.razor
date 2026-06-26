@@ -1,99 +1,219 @@
-﻿@page "/"
-@implements IDisposable
+@page "/"
+@using frontend.Models
+@using frontend.Services
+@inject EventoService EventoService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
 
-<PageTitle>Home</PageTitle>
+<style>
+.h-root { font-family: 'Inter','Segoe UI',sans-serif; background:#f2f2f2; min-height:100vh; color:#1a1a1a; }
+.h-loader { display:flex; justify-content:center; align-items:center; height:60vh; color:#999; font-size:1.2rem; }
 
-<div class="home-page">
+/* Hero */
+.h-hero { position:relative; min-height:500px; display:flex; align-items:center; overflow:hidden; }
+.h-hero-bg { position:absolute; inset:0; background:url('https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=1400&h=600&fit=crop') center/cover; filter:brightness(0.42); }
+.h-hero-inner { position:relative; z-index:1; display:flex; align-items:center; width:100%; max-width:1200px; margin:0 auto; padding:3rem 2rem; gap:2rem; }
+.h-hero-txt { flex:1; min-width:0; }
+.h-hero-txt .eyebrow { color:#ffd54a; font-weight:700; font-size:.85rem; letter-spacing:2px; text-transform:uppercase; }
+.h-hero-txt h1 { color:#fff; font-size:clamp(2rem,4vw,3rem); font-weight:900; line-height:1.1; margin:.5rem 0; }
+.h-hero-txt p { color:rgba(255,255,255,.8); font-size:1.05rem; margin-bottom:1.8rem; }
+.h-hero-btns { display:flex; gap:1rem; flex-wrap:wrap; }
+.h-btn { display:inline-block; border:none; border-radius:6px; padding:.85rem 2rem; font-weight:700; font-size:1rem; cursor:pointer; text-decoration:none; transition:.2s; }
+.h-btn-blue { background:#0266b5; color:#fff; }
+.h-btn-blue:hover { background:#015293; }
+.h-btn-out { border:2px solid rgba(255,255,255,.6); color:#fff; background:transparent; }
+.h-btn-out:hover { background:rgba(255,255,255,.1); border-color:#fff; }
 
-    <section class="banner-section">
-        <div class="banner-wrapper">
-            <img src="@banners[currentBanner]" alt="Banner de evento" class="banner-img" />
+/* Hero card */
+.h-hero-card { width:300px; height:240px; border-radius:12px; background-size:cover; background-position:center; cursor:pointer; flex-shrink:0; position:relative; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.4); transition:transform .25s; }
+.h-hero-card:hover { transform:scale(1.03); }
+.h-hero-card-tag { position:absolute; top:12px; left:12px; background:#e74c3c; color:#fff; font-weight:800; font-size:.65rem; padding:5px 10px; border-radius:4px; letter-spacing:1px; }
+.h-hero-card-info { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(0,0,0,.85)); padding:2rem 1.2rem 1.2rem; color:#fff; }
+.h-hero-card-info .d { font-size:.75rem; font-weight:600; opacity:.8; }
+.h-hero-card-info strong { display:block; font-size:1.2rem; font-weight:800; margin:.3rem 0; }
 
-            <div class="banner-overlay">
-                <div class="banner-content">
-                    <span class="badge-highlight">Ingressos disponíveis agora</span>
-                    <h1>Nexus Event</h1>
-                    <p>
-                        Descubra shows, festivais, congressos e experiências únicas.
-                        Compre seus ingressos com praticidade e segurança.
-                    </p>
+/* Categories */
+.h-cats { display:flex; gap:.5rem; padding:1rem 2rem; max-width:1200px; margin:0 auto; flex-wrap:wrap; }
+.h-cat { background:#fff; border:1px solid #ddd; border-radius:999px; padding:.5rem 1.2rem; font-weight:600; font-size:.85rem; cursor:pointer; color:#555; transition:.2s; }
+.h-cat.on, .h-cat:hover { background:#1a1a1a; color:#fff; border-color:#1a1a1a; }
 
-                    <div class="banner-actions">
-                        <button class="btn btn-primary-custom">Ver Eventos</button>
+/* Section */
+.h-sec { padding:1.5rem 2rem; max-width:1200px; margin:0 auto; }
+.h-sec-title { font-size:1.5rem; font-weight:800; margin-bottom:1rem; }
+
+/* Horizontal scroll */
+.h-scroll { display:flex; gap:1rem; overflow-x:auto; padding-bottom:.5rem; }
+.h-scroll::-webkit-scrollbar { height:6px; }
+.h-scroll::-webkit-scrollbar-thumb { background:#ccc; border-radius:3px; }
+
+.h-card-h { min-width:260px; height:360px; border-radius:12px; background-size:cover; background-position:center; cursor:pointer; flex-shrink:0; position:relative; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.12); transition:transform .2s; }
+.h-card-h:hover { transform:scale(1.02); }
+.h-card-h-over { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(0,0,0,.82)); padding:2.5rem 1.2rem 1.2rem; color:#fff; }
+.h-card-h-over .d { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; opacity:.85; }
+.h-card-h-over h3 { font-size:1.1rem; font-weight:800; margin:.3rem 0; }
+.h-card-h-over .loc { font-size:.8rem; opacity:.75; }
+
+/* Grid */
+.h-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:1.2rem; }
+.h-card { background:#fff; border-radius:12px; overflow:hidden; cursor:pointer; box-shadow:0 1px 6px rgba(0,0,0,.06); transition:transform .2s,box-shadow .2s; }
+.h-card:hover { transform:translateY(-4px); box-shadow:0 6px 20px rgba(0,0,0,.12); }
+.h-card-img { height:170px; background-size:cover; background-position:center; display:flex; align-items:flex-start; padding:10px; }
+.h-card-badge { background:#0266b5; color:#fff; font-size:.6rem; font-weight:800; padding:4px 10px; border-radius:4px; letter-spacing:1px; }
+.h-card-body { padding:1rem; }
+.h-card-body .d { font-size:.8rem; color:#888; font-weight:600; }
+.h-card-body h3 { font-size:1rem; font-weight:700; margin:.3rem 0 .6rem; color:#1a1a1a; }
+.h-card-foot { display:flex; justify-content:space-between; align-items:center; }
+.h-card-price { font-size:1.1rem; font-weight:800; color:#1a1a1a; }
+.h-card-go { font-size:.85rem; font-weight:700; color:#0266b5; }
+
+/* Footer */
+.h-foot { background:#1a1a2e; color:#fff; padding:2rem; margin-top:2rem; }
+.h-foot-inner { max-width:1200px; margin:0 auto; display:flex; gap:4rem; flex-wrap:wrap; justify-content:space-between; }
+.h-foot-inner h3 { margin:0 0 .3rem; }
+.h-foot-inner p { color:#888; font-size:.85rem; }
+.h-foot-col { display:flex; flex-direction:column; gap:.3rem; }
+.h-foot-col strong { margin-bottom:.3rem; font-size:.9rem; }
+.h-foot-col a { color:#aaa; text-decoration:none; font-size:.85rem; }
+.h-foot-col a:hover { color:#fff; }
+
+@@media(max-width:768px) {
+  .h-hero-inner { flex-direction:column; padding:2rem 1rem; }
+  .h-hero-card { width:100%; height:200px; }
+  .h-sec { padding:1rem; }
+  .h-card-h { min-width:220px; height:300px; }
+  .h-grid { grid-template-columns:1fr; }
+}
+</style>
+
+<div class="h-root">
+    @if (eventos is null)
+    {
+        <div class="h-loader">Carregando eventos...</div>
+    }
+    else
+    {
+        <!-- HERO -->
+        <section class="h-hero">
+            <div class="h-hero-bg"></div>
+            <div class="h-hero-inner">
+                <div class="h-hero-txt">
+                    <span class="eyebrow">🎟️ NEXUS EVENT</span>
+                    <h1>Os melhores eventos<br>estão aqui</h1>
+                    <p>Shows, festivais e experiências únicas. Garanta seu ingresso agora.</p>
+                    <div class="h-hero-btns">
+                        <a href="/eventos" class="h-btn h-btn-blue">Ver todos os eventos</a>
+                        @if (!AuthService.EstaLogado)
+                        {
+                            <a href="/register" class="h-btn h-btn-out">Criar conta grátis</a>
+                        }
                     </div>
                 </div>
+                @if (destaques.Any())
+                {
+                    var ev = destaques.First();
+                    <div class="h-hero-card" style="background-image:url('@Img(ev,0)')" @onclick="()=>Ir(ev.Id)">
+                        <div class="h-hero-card-tag">🔥 DESTAQUE</div>
+                        <div class="h-hero-card-info">
+                            <span class="d">@ev.DataEvento.ToString("dd MMM").ToUpper()</span>
+                            <strong>@ev.Nome</strong>
+                            <span>A partir de @ev.PrecoPadrao.ToString("C")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
 
-                <div class="banner-controls">
-                    <button type="button" class="control-btn" @onclick="BannerAnterior">❮</button>
-                    <button type="button" class="control-btn" @onclick="ProximoBanner">❯</button>
+        <!-- CATEGORIAS -->
+        <div class="h-cats">
+            <button class="h-cat on">Todos</button>
+            <button class="h-cat">Shows</button>
+            <button class="h-cat">Festivais</button>
+            <button class="h-cat">Esportes</button>
+            <button class="h-cat">Teatro</button>
+        </div>
+
+        <!-- EM ALTA -->
+        @if (eventos.Any())
+        {
+            <section class="h-sec">
+                <h2 class="h-sec-title">🔥 Em Alta</h2>
+                <div class="h-scroll">
+                    @foreach (var ev in eventos)
+                    {
+                        <div class="h-card-h" style="background-image:url('@Img(ev,1)')" @onclick="()=>Ir(ev.Id)">
+                            <div class="h-card-h-over">
+                                <span class="d">@ev.DataEvento.ToString("dd MMM").ToUpper()</span>
+                                <h3>@ev.Nome</h3>
+                                <span class="loc">📍 @ev.CapacidadeTotal lugares</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+        <!-- PRÓXIMOS EVENTOS -->
+        @if (eventos.Any())
+        {
+            <section class="h-sec">
+                <h2 class="h-sec-title">🎪 Próximos Eventos</h2>
+                <div class="h-grid">
+                    @foreach (var ev in eventos)
+                    {
+                        <div class="h-card" @onclick="()=>Ir(ev.Id)">
+                            <div class="h-card-img" style="background-image:url('@Img(ev,2)')">
+                                <span class="h-card-badge">INGRESSOS</span>
+                            </div>
+                            <div class="h-card-body">
+                                <span class="d">@ev.DataEvento.ToString("dd MMM yyyy HH:mm")</span>
+                                <h3>@ev.Nome</h3>
+                                <div class="h-card-foot">
+                                    <span class="h-card-price">@ev.PrecoPadrao.ToString("C")</span>
+                                    <span class="h-card-go">Garantir →</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+        <!-- FOOTER -->
+        <footer class="h-foot">
+            <div class="h-foot-inner">
+                <div>
+                    <h3>🎟️ NexusEvent</h3>
+                    <p>Ingressos para os melhores eventos.</p>
+                </div>
+                <div class="h-foot-col">
+                    <strong>Links</strong>
+                    <a href="/eventos">Eventos</a>
+                    <a href="/login">Entrar</a>
+                    <a href="/register">Cadastrar</a>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <section class="highlight-section">
-        <div class="highlight-box">
-            <h2>Viva grandes experiências</h2>
-            <p>
-                Uma plataforma moderna para encontrar eventos, garantir sua vaga
-                e acompanhar as melhores oportunidades.
-            </p>
-        </div>
-    </section>
-
+        </footer>
+    }
 </div>
 
 @code {
-    private int currentBanner = 0;
+    private List<EventoModel>? eventos;
+    private List<EventoModel> destaques = new();
 
-    private readonly List<string> banners = new()
+    private string Img(EventoModel ev, int seed)
     {
-        "images/banner1.jpg",
-        "images/banner2.jpg",
-        "images/banner3.jpg"
-    };
-
-    private PeriodicTimer? _timer;
-    private CancellationTokenSource? _cancellationTokenSource;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-        {
-            return;
-        }
-
-        _cancellationTokenSource = new CancellationTokenSource();
-        _timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
-
-        try
-        {
-            while (_timer is not null &&
-                   await _timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
-            {
-                currentBanner = (currentBanner + 1) % banners.Count;
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-        }
+        if (!string.IsNullOrWhiteSpace(ev.ImagemUrl))
+            return ev.ImagemUrl;
+        return $"https://picsum.photos/{(seed==0?500:seed==1?400:600)}/{(seed==0?300:seed==1?500:350)}?random={ev.Id*13+seed*7}";
     }
 
-    private void ProximoBanner()
-    {
-        currentBanner = (currentBanner + 1) % banners.Count;
+    private void Ir(int id) {
+        if (!AuthService.EstaLogado) { Navigation.NavigateTo("/login"); return; }
+        Navigation.NavigateTo($"/comprar/{id}");
     }
 
-    private void BannerAnterior()
-    {
-        currentBanner = (currentBanner - 1 + banners.Count) % banners.Count;
-    }
-
-    public void Dispose()
-    {
-        _cancellationTokenSource?.Cancel();
-        _timer?.Dispose();
-        _cancellationTokenSource?.Dispose();
+    protected override async Task OnInitializedAsync() {
+        eventos = await EventoService.ListarTodos();
+        destaques = eventos?.OrderBy(e=>e.DataEvento).Take(2).ToList() ?? new();
     }
 }

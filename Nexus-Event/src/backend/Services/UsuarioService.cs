@@ -1,7 +1,6 @@
-using System.Security.Cryptography;
-using System.Text;
 using backend.Entities;
 using backend.Repositories;
+using backend.Utils;
 
 namespace backend.Services;
 
@@ -28,18 +27,16 @@ public class UsuarioService
         if (string.IsNullOrWhiteSpace(request.Email))
             throw new ArgumentException("Email é obrigatório.");
 
-        
         var cpfExistente = await _usuarioRepository.BuscarPorCpf(request.Cpf);
         if (cpfExistente is not null)
             throw new InvalidOperationException("Já existe um usuário com este CPF.");
 
-        
         var emailExistente = await _usuarioRepository.BuscarPorEmailAsync(request.Email);
         if (emailExistente is not null)
             throw new InvalidOperationException("Já existe um usuário com este e-mail.");
 
         if (!string.IsNullOrWhiteSpace(request.SenhaHash))
-            request.SenhaHash = GerarHash(request.SenhaHash);
+            request.SenhaHash = HashUtils.GerarHash(request.SenhaHash);
 
         await _usuarioRepository.CadastrarAsync(request);
         return request;
@@ -67,7 +64,7 @@ public class UsuarioService
         existente.Endereco = request.Endereco ?? existente.Endereco;
 
         if (!string.IsNullOrWhiteSpace(request.SenhaHash))
-            existente.SenhaHash = GerarHash(request.SenhaHash);
+            existente.SenhaHash = HashUtils.GerarHash(request.SenhaHash);
 
         await _usuarioRepository.AtualizarAsync(existente);
         return existente;
@@ -82,11 +79,20 @@ public class UsuarioService
         await _usuarioRepository.DeletarAsync(cpf);
     }
 
-    private static string GerarHash(string senha)
+    // NOVO: Login movido para o Service (antes estava no endpoint)
+    public async Task<(bool sucesso, string mensagem, UsuarioEntity? usuario)> LoginAsync(string email, string senha)
     {
-        using var sha256 = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes(senha);
-        var hash = sha256.ComputeHash(bytes);
-        return Convert.ToBase64String(hash);
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(senha))
+            return (false, "Email e senha são obrigatórios.", null);
+
+        var usuario = await _usuarioRepository.BuscarPorEmailAsync(email);
+        if (usuario is null)
+            return (false, "Usuário não encontrado.", null);
+
+        var hash = HashUtils.GerarHash(senha);
+        if (usuario.SenhaHash != hash)
+            return (false, "Senha incorreta.", null);
+
+        return (true, "Login realizado com sucesso.", usuario);
     }
 }
